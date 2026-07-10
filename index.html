@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Digital Menu Builder</title>
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">🍽️</div>
+                <h1>Welcome Back</h1>
+                <p>Login to manage your restaurant menu</p>
+            </div>
+            <div id="errorMsg" class="alert alert-error" style="display:none;"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="owner@restaurant.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p class="auth-footer">Don't have an account? <a href="./signup.html">Sign up here</a></p>
+        </div>
+    </div>
+    <script src="./js/auth.js"></script>
+</body>
+</html>

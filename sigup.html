@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — Digital Menu Builder</title>
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">🍽️</div>
+                <h1>Create Account</h1>
+                <p>Set up your digital menu in minutes</p>
+            </div>
+            <div id="errorMsg" class="alert alert-error" style="display:none;"></div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="restaurant_name">Restaurant Name</label>
+                    <input type="text" id="restaurant_name" name="restaurant_name" placeholder="e.g., Spice Garden" required>
+                </div>
+                <div class="form-group">
+                    <label for="owner_name">Owner Name</label>
+                    <input type="text" id="owner_name" name="owner_name" placeholder="Your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="owner@restaurant.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Min 6 characters" minlength="6" required>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+            <p class="auth-footer">Already have an account? <a href="./index.html">Login here</a></p>
+        </div>
+    </div>
+    <script src="./js/auth.js"></script>
+</body>
+</html>
