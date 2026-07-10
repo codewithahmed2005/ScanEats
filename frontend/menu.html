@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu</title>
+    <link rel="stylesheet" href="./css/menu.css">
+</head>
+<body>
+    <header class="menu-header">
+        <div class="header-overlay"></div>
+        <div class="header-content">
+            <div class="restaurant-logo">🍽️</div>
+            <h1 id="restaurantName">Loading...</h1>
+            <p class="restaurant-tagline">Fresh • Delicious • Made with Love</p>
+        </div>
+    </header>
+
+    <nav id="categoryNav" class="category-nav"></nav>
+
+    <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading delicious menu...</p>
+    </div>
+
+    <main id="menuContent" class="menu-content" style="display:none;"></main>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">📂</div>
+        <h3>No menu items yet</h3>
+        <p>Please check back later.</p>
+    </div>
+
+    <footer class="menu-footer">
+        <p id="footerText">© 2025 Restaurant. All rights reserved.</p>
+        <p class="footer-sub">Powered by Digital Menu Builder</p>
+    </footer>
+
+    <script src="./js/menu.js"></script>
+</body>
+</html>
