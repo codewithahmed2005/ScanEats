@@ -1,4 +1,4 @@
-const API_URL = 'http://127.0.0.1:5000';
+const API_URL = 'https://codewithahmed-scaneats-backend.hf.space';
 const urlParams = new URLSearchParams(window.location.search);
 const RESTAURANT_ID = urlParams.get('id');
 
