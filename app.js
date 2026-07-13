@@ -2,7 +2,7 @@
 // CONFIG: Change this URL when deploying backend to Hugging Face
 // =====================================================================
 // Hugging Face URL yahan paste karein (Piche slash / mat lagana)
-const API_URL = 'https://codewithahmed-scaneats-backend.hf.space'; 
+const API_URL = ' http://127.0.0.1:5000'; 
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
