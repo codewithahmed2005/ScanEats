@@ -2,7 +2,7 @@
 // CONFIG: Change this URL when deploying backend to Hugging Face
 // =====================================================================
 // Hugging Face direct endpoint mapped to bypass network proxies
-const BACKEND_URL = "https://codewithahmed-scaneats-backend-direct.hf.space";
+const BACKEND_URL = "https://scaneats-backend.onrender.com";
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
