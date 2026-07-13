@@ -18,6 +18,16 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
+        // Agar server so raha hai ya HTML response de raha hai, toh JSON parse mat karo
+        const contentType = res.headers.get("content-type");
+        if (!res.ok || !contentType || !contentType.includes("application/json")) {
+            // Check agar server sleeping/sleep state mein hai
+            if (res.status === 503 || res.status === 502) {
+                throw new Error("Backend server is sleeping. Please try again in 30 seconds.");
+            }
+            throw new Error("Server returned an invalid response.");
+        }
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Server Error');
         return data;
@@ -27,7 +37,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         return { error: error.message };
     }
 }
-
 function showToast(msg, type = 'success') {
     const toast = document.getElementById('toast');
     if (!toast) return alert(msg);
