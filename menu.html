@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScanEats Menu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="menu-body">
+    <header class="menu-header">
+        <h1 id="restaurantName">Loading Menu...</h1>
+        <p>Fresh • Delicious • Made with Love</p>
+    </header>
+
+    <!-- Menu Controls (Search & Veg Toggle) -->
+    <div class="menu-controls">
+        <input type="text" id="searchInput" placeholder="🔍 Search for dishes...">
+        <label class="veg-toggle">
+            <input type="checkbox" id="vegOnlyToggle">
+            <span class="veg-toggle-slider"></span>
+            Veg Only
+        </label>
+    </div>
+
+    <div id="loading" class="loading-state">
+        <div class="spinner"></div>
+    </div>
+
+    <main id="menuContent" class="menu-content"></main>
+
+    <footer class="menu-footer">
+        <p>Powered by ScanEats</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
