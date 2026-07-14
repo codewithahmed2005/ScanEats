@@ -1,7 +1,7 @@
 // =====================================================================
 // CONFIG: Change this URL when deploying backend to Hugging Face
 // =====================================================================
-const API_URL = 'http://127.0.0.1:5000'; 
+const API_URL = 'https://scaneats-backend.onrender.com'; 
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
