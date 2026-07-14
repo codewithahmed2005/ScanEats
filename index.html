@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScanEats - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo">🍽️ ScanEats</div>
+            <h2 id="formTitle">Login to your Account</h2>
+            
+            <div id="errorMsg" class="error-msg" style="display:none;"></div>
+
+            <form id="authForm">
+                <div id="signupFields" style="display:none;">
+                    <input type="text" id="restaurant_name" placeholder="Restaurant Name">
+                    <input type="text" id="owner_name" placeholder="Owner Name">
+                </div>
+                <input type="email" id="email" placeholder="Email Address" required>
+                
+                <!-- Password Field with Toggle -->
+                <div class="password-wrapper">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <span class="toggle-password" id="togglePassword">👁️</span>
+                </div>
+                
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            
+            <p class="toggle-text">
+                Don't have an account? <a href="#" id="toggleForm">Sign up here</a>
+            </p>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
