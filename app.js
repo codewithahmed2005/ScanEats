@@ -5,6 +5,9 @@ const API_URL = 'https://scaneats-backend.onrender.com';
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
+localStorage.setItem('scaneats_token', 'your_token_here');
+window.location.href = 'dashboard.html';
+
 // Improved API Fetch with Error Handling
 async function apiFetch(endpoint, method = 'GET', body = null) {
     try {
