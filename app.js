@@ -9,7 +9,10 @@ const getToken = () => localStorage.getItem('scaneats_token');
 async function apiFetch(endpoint, method = 'GET', body = null) {
     try {
         const headers = { 'Content-Type': 'application/json' };
-        if (getToken()) headers['Authorization'] = `Bearer ${getToken()}`;
+        const token = getToken();
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
+        console.log(`Fetching: ${API_URL}${endpoint}`);
         
         const res = await fetch(`${API_URL}${endpoint}`, {
             method,
@@ -17,12 +20,24 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
+        // Agar 401 (Unauthorized) hai toh token invalid
+        if (res.status === 401) {
+            console.error('Unauthorized - token invalid');
+            localStorage.removeItem('scaneats_token');
+            if (!document.getElementById('authForm')) {
+                window.location.href = 'index.html';
+            }
+            return { error: 'Unauthorized' };
+        }
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Server Error');
         return data;
     } catch (error) {
         console.error('API Error:', error);
-        if (!document.getElementById('authForm')) showToast(error.message, 'error');
+        if (!document.getElementById('authForm')) {
+            showToast(error.message, 'error');
+        }
         return { error: error.message };
     }
 }
@@ -148,14 +163,24 @@ if (menuForm) {
 
     async function initDashboard() {
         try {
-            const data = await apiFetch('/api/me');
+            const token = getToken();
             
-            // Agar error hai toh token invalid hai
-            if (data.error) {
-                console.error('Auth error:', data.error);
-                localStorage.removeItem('scaneats_token');
+            if (!token) {
                 window.location.href = 'index.html';
                 return;
+            }
+
+            console.log('Fetching /api/me...');
+            const data = await apiFetch('/api/me');
+            console.log('API /me response:', data);
+            
+            if (data.error) {
+                if (data.error === 'Unauthorized' || data.error === 'Token is invalid!' || data.error === 'Token is missing!') {
+                    localStorage.removeItem('scaneats_token');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                console.warn('API error but continuing:', data.error);
             }
             
             if (data.id) {
@@ -171,8 +196,13 @@ if (menuForm) {
             }
         } catch (error) {
             console.error('Dashboard init error:', error);
-            localStorage.removeItem('scaneats_token');
-            window.location.href = 'index.html';
+            if (error.message === 'Failed to fetch') {
+                showToast('Network error, retrying...', 'error');
+                setTimeout(initDashboard, 3000);
+            } else {
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+            }
         }
     }
 
@@ -190,6 +220,11 @@ if (menuForm) {
             allItems = data;
             renderMenu();
         } else if (data.error) {
+            if (data.error === 'Unauthorized' || data.error === 'Token is invalid!') {
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+                return;
+            }
             list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items: ${data.error}</p>`;
         } else {
             list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items.</p>`;
