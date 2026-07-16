@@ -129,12 +129,13 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html) - SIMPLIFIED & WORKING
+// 2. DASHBOARD LOGIC (dashboard.html) - FIXED
 // =====================================================================
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
     let currentRestaurant = null;
     let allItems = [];
+    let isInitialized = false;
 
     // Profile Settings Logic
     const profileForm = document.getElementById('profileForm');
@@ -154,6 +155,9 @@ if (menuForm) {
     }
 
     async function initDashboard() {
+        // Already initialized, prevent duplicate
+        if (isInitialized) return;
+        
         // Check if token exists
         if (!getToken()) {
             window.location.href = 'index.html';
@@ -165,6 +169,7 @@ if (menuForm) {
             
             // Check if we got valid restaurant data
             if (data && data.id) {
+                isInitialized = true;
                 currentRestaurant = data;
                 document.getElementById('restoName').textContent = data.restaurant_name;
                 document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
@@ -182,14 +187,8 @@ if (menuForm) {
             }
         } catch (error) {
             console.error('Dashboard init error:', error);
-            // If network error, retry
-            if (error.message === 'Failed to fetch') {
-                showToast('Network error, retrying...', 'error');
-                setTimeout(initDashboard, 3000);
-            } else {
-                localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
-            }
+            localStorage.removeItem('scaneats_token');
+            window.location.href = 'index.html';
         }
     }
 
@@ -337,7 +336,7 @@ if (menuForm) {
         }
     });
 
-    // Initialize dashboard
+    // Initialize dashboard ONLY ONCE
     initDashboard();
 }
 
