@@ -1,12 +1,9 @@
 // =====================================================================
-// CONFIG: Change this URL when deploying backend to Hugging Face
+// CONFIG: Change this URL when deploying backend
 // =====================================================================
 const API_URL = 'https://scaneats-backend.onrender.com'; 
 
 const getToken = () => localStorage.getItem('scaneats_token');
-
-localStorage.setItem('scaneats_token', 'your_token_here');
-window.location.href = 'dashboard.html';
 
 // Improved API Fetch with Error Handling
 async function apiFetch(endpoint, method = 'GET', body = null) {
@@ -46,7 +43,10 @@ const authForm = document.getElementById('authForm');
 if (authForm) {
     let isSignup = false;
 
-    if (getToken()) window.location.href = 'dashboard.html';
+    // Agar token hai toh dashboard pe bhejo
+    if (getToken()) {
+        window.location.href = 'dashboard.html';
+    }
 
     const toggleForm = document.getElementById('toggleForm');
     const formTitle = document.getElementById('formTitle');
@@ -103,18 +103,16 @@ if (authForm) {
 
         loadingOverlay.style.display = 'flex';
 
-        setTimeout(async () => {
-            const data = await apiFetch(endpoint, 'POST', payload);
-            loadingOverlay.style.display = 'none';
-            
-            if (data.success) {
-                localStorage.setItem('scaneats_token', data.token);
-                window.location.href = 'dashboard.html';
-            } else {
-                errorDiv.textContent = data.error || 'Something went wrong';
-                errorDiv.style.display = 'block';
-            }
-        }, 1500); // 1.5 seconds delay
+        const data = await apiFetch(endpoint, 'POST', payload);
+        loadingOverlay.style.display = 'none';
+        
+        if (data.success) {
+            localStorage.setItem('scaneats_token', data.token);
+            window.location.href = 'dashboard.html';
+        } else {
+            errorDiv.textContent = data.error || 'Something went wrong';
+            errorDiv.style.display = 'block';
+        }
     });
 }
 
@@ -123,12 +121,15 @@ if (authForm) {
 // =====================================================================
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
-    if (!getToken()) window.location.href = 'index.html';
+    // Agar token nahi hai toh login page pe bhejo
+    if (!getToken()) {
+        window.location.href = 'index.html';
+    }
 
     let currentRestaurant = null;
     let allItems = [];
 
-    // NEW: Profile Settings Logic
+    // Profile Settings Logic
     const profileForm = document.getElementById('profileForm');
     if (profileForm) {
         profileForm.addEventListener('submit', async (e) => {
@@ -145,26 +146,35 @@ if (menuForm) {
         });
     }
 
-async function initDashboard() {
-    const data = await apiFetch('/api/me');
-    if (data.id) {
-        // Success - show dashboard
-        currentRestaurant = data;
-        document.getElementById('restoName').textContent = data.restaurant_name;
-        document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
-        document.getElementById('settings_resto_name').value = data.restaurant_name || '';
-        document.getElementById('settings_upi_id').value = data.upi_id || '';
-        await loadMenuItems();
-    } else if (data.error) {
-        // Token invalid or expired
-        localStorage.removeItem('scaneats_token');
-        window.location.href = 'index.html';
-    } else {
-        // Unexpected error
-        localStorage.removeItem('scaneats_token');
-        window.location.href = 'index.html';
+    async function initDashboard() {
+        try {
+            const data = await apiFetch('/api/me');
+            
+            // Agar error hai toh token invalid hai
+            if (data.error) {
+                console.error('Auth error:', data.error);
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            if (data.id) {
+                currentRestaurant = data;
+                document.getElementById('restoName').textContent = data.restaurant_name;
+                document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
+                document.getElementById('settings_resto_name').value = data.restaurant_name || '';
+                document.getElementById('settings_upi_id').value = data.upi_id || '';
+                await loadMenuItems();
+            } else {
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+            }
+        } catch (error) {
+            console.error('Dashboard init error:', error);
+            localStorage.removeItem('scaneats_token');
+            window.location.href = 'index.html';
+        }
     }
-}
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('scaneats_token');
@@ -176,15 +186,16 @@ async function initDashboard() {
         list.innerHTML = '<p class="loading-text">Loading items...</p>';
         
         const data = await apiFetch('/api/menu-items');
-        if (!data.error) {
-            allItems = Array.isArray(data) ? data : [];
+        if (!data.error && Array.isArray(data)) {
+            allItems = data;
             renderMenu();
+        } else if (data.error) {
+            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items: ${data.error}</p>`;
         } else {
             list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items.</p>`;
         }
     }
 
-    // NEW: Update Stats dynamically
     function updateStats() {
         document.getElementById('totalItems').textContent = allItems.length;
         document.getElementById('vegItems').textContent = allItems.filter(i => i.is_veg).length;
@@ -208,7 +219,6 @@ async function initDashboard() {
                 <div class="item-price">₹${item.price}</div>
                 
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <!-- Toggle Switch -->
                     <label class="switch">
                         <input type="checkbox" onchange="toggleActive(${item.id})" ${item.is_active ? 'checked' : ''}>
                         <span class="slider"></span>
@@ -222,10 +232,9 @@ async function initDashboard() {
             </div>
         `).join('');
         
-        updateStats(); // Call stats update every time menu renders
+        updateStats();
     }
 
-    // NEW: Toggle Active Status Function
     window.toggleActive = async (id) => {
         const data = await apiFetch(`/api/menu/toggle/${id}`, 'PUT');
         if (data.success) {
@@ -233,6 +242,8 @@ async function initDashboard() {
             const item = allItems.find(i => i.id === id);
             if (item) item.is_active = data.is_active;
             renderMenu();
+        } else {
+            showToast('Failed to update status', 'error');
         }
     }
 
@@ -256,12 +267,13 @@ async function initDashboard() {
             resetForm();
             await loadMenuItems();
         } else {
-            showToast('Error saving item', 'error');
+            showToast(data.error || 'Error saving item', 'error');
         }
     });
 
     window.editItem = (id) => {
         const item = allItems.find(i => i.id === id);
+        if (!item) return;
         document.getElementById('itemId').value = item.id;
         document.getElementById('name').value = item.name;
         document.getElementById('description').value = item.description || '';
@@ -280,6 +292,8 @@ async function initDashboard() {
         if (data.success) {
             showToast('Item deleted!');
             await loadMenuItems();
+        } else {
+            showToast('Failed to delete item', 'error');
         }
     };
 
@@ -302,10 +316,11 @@ async function initDashboard() {
             link.style.display = 'inline-block';
             showToast('QR Generated!');
         } else {
-            showToast('Failed to generate QR', 'error');
+            showToast(data.error || 'Failed to generate QR', 'error');
         }
     });
 
+    // Initialize dashboard
     initDashboard();
 }
 
@@ -317,7 +332,7 @@ if (menuContent) {
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get('id');
 
-    let allMenuItems = []; // Store all items globally for filtering
+    let allMenuItems = [];
     let isVegOnly = false;
     let searchTerm = '';
 
@@ -330,16 +345,15 @@ if (menuContent) {
 
         const data = await apiFetch(`/api/menu/${restaurantId}`);
         if (data.error) {
-            menuContent.innerHTML = '<h2>Menu not found</h2>';
+            menuContent.innerHTML = `<h2>${data.error || 'Menu not found'}</h2>`;
             document.getElementById('loading').style.display = 'none';
             return;
         }
 
         document.getElementById('restaurantName').textContent = data.restaurant_name;
         document.title = `${data.restaurant_name} - Menu`;
-        allMenuItems = data.items; // Save globally
+        allMenuItems = data.items || [];
 
-        // Attach event listeners for search and veg toggle
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value.toLowerCase();
             renderFilteredMenu();
@@ -359,9 +373,9 @@ if (menuContent) {
             return;
         }
 
-        // Filter items based on search and veg toggle
         let filteredItems = allMenuItems.filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(searchTerm) || (item.description && item.description.toLowerCase().includes(searchTerm));
+            const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                                 (item.description && item.description.toLowerCase().includes(searchTerm));
             const matchesVeg = !isVegOnly || item.is_veg;
             return matchesSearch && matchesVeg;
         });
@@ -371,7 +385,6 @@ if (menuContent) {
             return;
         }
 
-        // Group by category
         const grouped = {};
         filteredItems.forEach(item => {
             if (!grouped[item.category]) grouped[item.category] = [];
@@ -383,7 +396,7 @@ if (menuContent) {
                 <h2 class="category-title">${category}</h2>
                 ${items.map(item => `
                     <div class="menu-item-card">
-                        <div style="display:flex;">
+                        <div style="display:flex; gap:10px;">
                             <div class="veg-badge ${item.is_veg ? 'veg' : 'non-veg'}"></div>
                             <div>
                                 <div style="font-weight:600; font-size:16px;">${item.name}</div>
