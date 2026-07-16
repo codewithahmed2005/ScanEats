@@ -142,23 +142,26 @@ if (menuForm) {
         });
     }
 
-    async function initDashboard() {
-        const data = await apiFetch('/api/me');
-        if (data.id) {
-            currentRestaurant = data;
-            document.getElementById('restoName').textContent = data.restaurant_name;
-            document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
-            
-            // Populate settings fields
-            document.getElementById('settings_resto_name').value = data.restaurant_name || '';
-            document.getElementById('settings_upi_id').value = data.upi_id || '';
-            
-            await loadMenuItems();
-        } else {
-            localStorage.removeItem('scaneats_token');
-            window.location.href = 'index.html';
-        }
+async function initDashboard() {
+    const data = await apiFetch('/api/me');
+    if (data.id) {
+        // Success - show dashboard
+        currentRestaurant = data;
+        document.getElementById('restoName').textContent = data.restaurant_name;
+        document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
+        document.getElementById('settings_resto_name').value = data.restaurant_name || '';
+        document.getElementById('settings_upi_id').value = data.upi_id || '';
+        await loadMenuItems();
+    } else if (data.error) {
+        // Token invalid or expired
+        localStorage.removeItem('scaneats_token');
+        window.location.href = 'index.html';
+    } else {
+        // Unexpected error
+        localStorage.removeItem('scaneats_token');
+        window.location.href = 'index.html';
     }
+}
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('scaneats_token');
