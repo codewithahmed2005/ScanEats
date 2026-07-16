@@ -18,7 +18,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
-        // Agar 401 (Unauthorized) hai toh token invalid
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
@@ -32,9 +31,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         return data;
     } catch (error) {
         console.error('API Error:', error);
-        if (!document.getElementById('authForm')) {
-            showToast(error.message, 'error');
-        }
         return { error: error.message };
     }
 }
@@ -55,7 +51,6 @@ const authForm = document.getElementById('authForm');
 if (authForm) {
     let isSignup = false;
 
-    // Agar token hai toh dashboard pe bhejo
     if (getToken()) {
         window.location.href = 'dashboard.html';
     }
@@ -66,7 +61,6 @@ if (authForm) {
     const submitBtn = authForm.querySelector('button[type="submit"]');
     const loadingOverlay = document.getElementById('loadingOverlay');
 
-    // Password Hide/Show Logic
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
     if (togglePassword) {
@@ -155,10 +149,8 @@ if (menuForm) {
     }
 
     async function initDashboard() {
-        // Already initialized, prevent duplicate
         if (isInitialized) return;
         
-        // Check if token exists
         if (!getToken()) {
             window.location.href = 'index.html';
             return;
@@ -167,7 +159,6 @@ if (menuForm) {
         try {
             const data = await apiFetch('/api/me');
             
-            // Check if we got valid restaurant data
             if (data && data.id) {
                 isInitialized = true;
                 currentRestaurant = data;
@@ -176,12 +167,7 @@ if (menuForm) {
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
                 await loadMenuItems();
-            } else if (data.error) {
-                // Token invalid or expired
-                localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
             } else {
-                // Unexpected response
                 localStorage.removeItem('scaneats_token');
                 window.location.href = 'index.html';
             }
@@ -205,10 +191,8 @@ if (menuForm) {
         if (!data.error && Array.isArray(data)) {
             allItems = data;
             renderMenu();
-        } else if (data.error) {
-            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items: ${data.error}</p>`;
         } else {
-            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items.</p>`;
+            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items. Please refresh.</p>`;
         }
     }
 
@@ -336,8 +320,10 @@ if (menuForm) {
         }
     });
 
-    // Initialize dashboard ONLY ONCE
-    initDashboard();
+    // Initialize dashboard only once
+    if (!isInitialized) {
+        initDashboard();
+    }
 }
 
 // =====================================================================
