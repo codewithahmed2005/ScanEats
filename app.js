@@ -129,18 +129,12 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html) - FIXED
+// 2. DASHBOARD LOGIC (dashboard.html) - SIMPLIFIED & WORKING
 // =====================================================================
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
-    // Agar token nahi hai toh login page pe bhejo
-    if (!getToken()) {
-        window.location.href = 'index.html';
-    }
-
     let currentRestaurant = null;
     let allItems = [];
-    let authCheckDone = false;
 
     // Profile Settings Logic
     const profileForm = document.getElementById('profileForm');
@@ -160,50 +154,42 @@ if (menuForm) {
     }
 
     async function initDashboard() {
-        // Agar already check ho chuka hai toh return
-        if (authCheckDone) return;
-        
-        try {
-            const token = getToken();
-            
-            if (!token) {
-                window.location.href = 'index.html';
-                return;
-            }
+        // Check if token exists
+        if (!getToken()) {
+            window.location.href = 'index.html';
+            return;
+        }
 
+        try {
             const data = await apiFetch('/api/me');
             
-            // Agar error hai but token valid hai toh continue
-            if (data.error) {
-                if (data.error === 'Unauthorized' || data.error === 'Token is invalid!' || data.error === 'Token is missing!') {
-                    localStorage.removeItem('scaneats_token');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                // Agar network error hai toh retry
-                if (data.error === 'Failed to fetch') {
-                    showToast('Network error, retrying...', 'error');
-                    setTimeout(initDashboard, 3000);
-                    return;
-                }
-            }
-            
-            if (data.id) {
-                authCheckDone = true;
+            // Check if we got valid restaurant data
+            if (data && data.id) {
                 currentRestaurant = data;
                 document.getElementById('restoName').textContent = data.restaurant_name;
                 document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
                 await loadMenuItems();
+            } else if (data.error) {
+                // Token invalid or expired
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
             } else {
+                // Unexpected response
                 localStorage.removeItem('scaneats_token');
                 window.location.href = 'index.html';
             }
         } catch (error) {
             console.error('Dashboard init error:', error);
-            // Retry after 3 seconds
-            setTimeout(initDashboard, 3000);
+            // If network error, retry
+            if (error.message === 'Failed to fetch') {
+                showToast('Network error, retrying...', 'error');
+                setTimeout(initDashboard, 3000);
+            } else {
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+            }
         }
     }
 
@@ -221,11 +207,6 @@ if (menuForm) {
             allItems = data;
             renderMenu();
         } else if (data.error) {
-            if (data.error === 'Unauthorized' || data.error === 'Token is invalid!') {
-                localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
-                return;
-            }
             list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items: ${data.error}</p>`;
         } else {
             list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items.</p>`;
