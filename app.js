@@ -12,8 +12,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         const token = getToken();
         if (token) headers['Authorization'] = `Bearer ${token}`;
         
-        console.log(`Fetching: ${API_URL}${endpoint}`);
-        
         const res = await fetch(`${API_URL}${endpoint}`, {
             method,
             headers,
@@ -22,7 +20,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
 
         // Agar 401 (Unauthorized) hai toh token invalid
         if (res.status === 401) {
-            console.error('Unauthorized - token invalid');
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
                 window.location.href = 'index.html';
@@ -132,7 +129,7 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html)
+// 2. DASHBOARD LOGIC (dashboard.html) - FIXED
 // =====================================================================
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
@@ -143,6 +140,7 @@ if (menuForm) {
 
     let currentRestaurant = null;
     let allItems = [];
+    let authCheckDone = false;
 
     // Profile Settings Logic
     const profileForm = document.getElementById('profileForm');
@@ -162,6 +160,9 @@ if (menuForm) {
     }
 
     async function initDashboard() {
+        // Agar already check ho chuka hai toh return
+        if (authCheckDone) return;
+        
         try {
             const token = getToken();
             
@@ -170,20 +171,25 @@ if (menuForm) {
                 return;
             }
 
-            console.log('Fetching /api/me...');
             const data = await apiFetch('/api/me');
-            console.log('API /me response:', data);
             
+            // Agar error hai but token valid hai toh continue
             if (data.error) {
                 if (data.error === 'Unauthorized' || data.error === 'Token is invalid!' || data.error === 'Token is missing!') {
                     localStorage.removeItem('scaneats_token');
                     window.location.href = 'index.html';
                     return;
                 }
-                console.warn('API error but continuing:', data.error);
+                // Agar network error hai toh retry
+                if (data.error === 'Failed to fetch') {
+                    showToast('Network error, retrying...', 'error');
+                    setTimeout(initDashboard, 3000);
+                    return;
+                }
             }
             
             if (data.id) {
+                authCheckDone = true;
                 currentRestaurant = data;
                 document.getElementById('restoName').textContent = data.restaurant_name;
                 document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
@@ -196,13 +202,8 @@ if (menuForm) {
             }
         } catch (error) {
             console.error('Dashboard init error:', error);
-            if (error.message === 'Failed to fetch') {
-                showToast('Network error, retrying...', 'error');
-                setTimeout(initDashboard, 3000);
-            } else {
-                localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
-            }
+            // Retry after 3 seconds
+            setTimeout(initDashboard, 3000);
         }
     }
 
