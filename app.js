@@ -128,9 +128,8 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html) - COMPLETE FIX
+// 2. DASHBOARD LOGIC (dashboard.html)
 // =====================================================================
-
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
     let currentRestaurant = null;
