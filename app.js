@@ -123,7 +123,7 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html) - FIXED
+// 2. DASHBOARD LOGIC (dashboard.html) - FINAL FIX
 // =====================================================================
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
@@ -149,8 +149,10 @@ if (menuForm) {
     }
 
     async function initDashboard() {
+        // Prevent multiple initializations
         if (isInitialized) return;
         
+        // Check token exists
         if (!getToken()) {
             window.location.href = 'index.html';
             return;
@@ -173,8 +175,11 @@ if (menuForm) {
             }
         } catch (error) {
             console.error('Dashboard init error:', error);
-            localStorage.removeItem('scaneats_token');
-            window.location.href = 'index.html';
+            // Only redirect if not already redirecting
+            if (!window.location.href.includes('index.html')) {
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+            }
         }
     }
 
