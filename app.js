@@ -10,7 +10,11 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
     try {
         const headers = { 'Content-Type': 'application/json' };
         const token = getToken();
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
+        // IMPORTANT: Token sirf non-OPTIONS requests mein bhejo
+        if (token && method !== 'OPTIONS') {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
         
         const res = await fetch(`${API_URL}${endpoint}`, {
             method,
@@ -18,6 +22,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
+        // Handle 401
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
@@ -148,41 +153,39 @@ if (menuForm) {
         });
     }
 
-    async function initDashboard() {
-        // Prevent multiple initializations
-        if (isInitialized) return;
-        
-        // Check token exists
-        if (!getToken()) {
-            window.location.href = 'index.html';
-            return;
-        }
-
-        try {
-            const data = await apiFetch('/api/me');
-            
-            if (data && data.id) {
-                isInitialized = true;
-                currentRestaurant = data;
-                document.getElementById('restoName').textContent = data.restaurant_name;
-                document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
-                document.getElementById('settings_resto_name').value = data.restaurant_name || '';
-                document.getElementById('settings_upi_id').value = data.upi_id || '';
-                await loadMenuItems();
-            } else {
-                localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
-            }
-        } catch (error) {
-            console.error('Dashboard init error:', error);
-            // Only redirect if not already redirecting
-            if (!window.location.href.includes('index.html')) {
-                localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
-            }
-        }
+async function initDashboard() {
+    if (isInitialized) return;
+    
+    if (!getToken()) {
+        window.location.href = 'index.html';
+        return;
     }
 
+    try {
+        console.log('Fetching /api/me with token:', getToken());
+        const data = await apiFetch('/api/me', 'GET');
+        console.log('/api/me response:', data);
+        
+        if (data && data.id) {
+            isInitialized = true;
+            currentRestaurant = data;
+            document.getElementById('restoName').textContent = data.restaurant_name;
+            document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
+            document.getElementById('settings_resto_name').value = data.restaurant_name || '';
+            document.getElementById('settings_upi_id').value = data.upi_id || '';
+            await loadMenuItems();
+        } else if (data.error === 'Unauthorized') {
+            localStorage.removeItem('scaneats_token');
+            window.location.href = 'index.html';
+        } else {
+            // Retry after 2 seconds
+            setTimeout(initDashboard, 2000);
+        }
+    } catch (error) {
+        console.error('Dashboard init error:', error);
+        setTimeout(initDashboard, 2000);
+    }
+}
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('scaneats_token');
         window.location.href = 'index.html';
