@@ -11,7 +11,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         const headers = { 'Content-Type': 'application/json' };
         const token = getToken();
         
-        // IMPORTANT: Token sirf non-OPTIONS requests mein bhejo
+        // Token sirf non-OPTIONS requests mein bhejo
         if (token && method !== 'OPTIONS') {
             headers['Authorization'] = `Bearer ${token}`;
         }
@@ -22,7 +22,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
-        // Handle 401
+        // Handle 401 Unauthorized
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
@@ -128,8 +128,9 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html) - FINAL FIX
+// 2. DASHBOARD LOGIC (dashboard.html) - COMPLETE FIX
 // =====================================================================
+
 const menuForm = document.getElementById('menuForm');
 if (menuForm) {
     let currentRestaurant = null;
@@ -153,39 +154,39 @@ if (menuForm) {
         });
     }
 
-async function initDashboard() {
-    if (isInitialized) return;
-    
-    if (!getToken()) {
-        window.location.href = 'index.html';
-        return;
-    }
-
-    try {
-        console.log('Fetching /api/me with token:', getToken());
-        const data = await apiFetch('/api/me', 'GET');
-        console.log('/api/me response:', data);
+    async function initDashboard() {
+        if (isInitialized) return;
         
-        if (data && data.id) {
-            isInitialized = true;
-            currentRestaurant = data;
-            document.getElementById('restoName').textContent = data.restaurant_name;
-            document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
-            document.getElementById('settings_resto_name').value = data.restaurant_name || '';
-            document.getElementById('settings_upi_id').value = data.upi_id || '';
-            await loadMenuItems();
-        } else if (data.error === 'Unauthorized') {
-            localStorage.removeItem('scaneats_token');
+        if (!getToken()) {
             window.location.href = 'index.html';
-        } else {
-            // Retry after 2 seconds
+            return;
+        }
+
+        try {
+            console.log('Fetching /api/me with token:', getToken());
+            const data = await apiFetch('/api/me', 'GET');
+            console.log('/api/me response:', data);
+            
+            if (data && data.id) {
+                isInitialized = true;
+                currentRestaurant = data;
+                document.getElementById('restoName').textContent = data.restaurant_name;
+                document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
+                document.getElementById('settings_resto_name').value = data.restaurant_name || '';
+                document.getElementById('settings_upi_id').value = data.upi_id || '';
+                await loadMenuItems();
+            } else if (data.error === 'Unauthorized') {
+                localStorage.removeItem('scaneats_token');
+                window.location.href = 'index.html';
+            } else {
+                setTimeout(initDashboard, 2000);
+            }
+        } catch (error) {
+            console.error('Dashboard init error:', error);
             setTimeout(initDashboard, 2000);
         }
-    } catch (error) {
-        console.error('Dashboard init error:', error);
-        setTimeout(initDashboard, 2000);
     }
-}
+
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('scaneats_token');
         window.location.href = 'index.html';
@@ -195,12 +196,20 @@ async function initDashboard() {
         const list = document.getElementById('menuList');
         list.innerHTML = '<p class="loading-text">Loading items...</p>';
         
+        if (!getToken()) {
+            list.innerHTML = '<p class="loading-text" style="color:red;">Please login again</p>';
+            window.location.href = 'index.html';
+            return;
+        }
+        
         const data = await apiFetch('/api/menu-items');
+        console.log('Menu items response:', data);
+        
         if (!data.error && Array.isArray(data)) {
             allItems = data;
             renderMenu();
         } else {
-            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items. Please refresh.</p>`;
+            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items: ${data.error || 'Unknown error'}</p>`;
         }
     }
 
@@ -244,6 +253,12 @@ async function initDashboard() {
     }
 
     window.toggleActive = async (id) => {
+        if (!getToken()) {
+            showToast('Please login again', 'error');
+            window.location.href = 'index.html';
+            return;
+        }
+        
         const data = await apiFetch(`/api/menu/toggle/${id}`, 'PUT');
         if (data.success) {
             showToast('Item status updated!');
@@ -257,6 +272,13 @@ async function initDashboard() {
 
     menuForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        if (!getToken()) {
+            showToast('Please login again', 'error');
+            window.location.href = 'index.html';
+            return;
+        }
+        
         const id = document.getElementById('itemId').value;
         const payload = {
             name: document.getElementById('name').value,
@@ -268,7 +290,12 @@ async function initDashboard() {
 
         const method = id ? 'PUT' : 'POST';
         const endpoint = id ? `/api/menu-items/${id}` : '/api/menu-items';
+        
+        console.log('Sending request:', { method, endpoint, payload });
+        
         const data = await apiFetch(endpoint, method, payload);
+        
+        console.log('Response:', data);
 
         if (data.success) {
             showToast(id ? 'Item updated!' : 'Item added!');
@@ -296,6 +323,13 @@ async function initDashboard() {
 
     window.deleteItem = async (id) => {
         if (!confirm('Delete this item?')) return;
+        
+        if (!getToken()) {
+            showToast('Please login again', 'error');
+            window.location.href = 'index.html';
+            return;
+        }
+        
         const data = await apiFetch(`/api/menu-items/${id}`, 'DELETE');
         if (data.success) {
             showToast('Item deleted!');
@@ -315,6 +349,12 @@ async function initDashboard() {
     document.getElementById('cancelBtn').addEventListener('click', resetForm);
 
     document.getElementById('generateQrBtn').addEventListener('click', async () => {
+        if (!getToken()) {
+            showToast('Please login again', 'error');
+            window.location.href = 'index.html';
+            return;
+        }
+        
         const data = await apiFetch('/api/generate-qr', 'POST');
         if (data.success) {
             document.getElementById('qrDisplay').innerHTML = `<img src="${data.qr_base64}" alt="QR Code">`;
