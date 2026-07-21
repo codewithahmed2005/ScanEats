@@ -11,7 +11,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         const headers = { 'Content-Type': 'application/json' };
         const token = getToken();
         
-        // Token sirf non-OPTIONS requests mein bhejo
         if (token && method !== 'OPTIONS') {
             headers['Authorization'] = `Bearer ${token}`;
         }
@@ -22,11 +21,10 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             body: body ? JSON.stringify(body) : null
         });
 
-        // Handle 401 Unauthorized
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
-                window.location.href = 'index.html';
+                window.location.href = 'auth.html';
             }
             return { error: 'Unauthorized' };
         }
@@ -44,13 +42,157 @@ function showToast(msg, type = 'success') {
     const toast = document.getElementById('toast');
     if (!toast) return alert(msg);
     toast.textContent = msg;
-    toast.style.background = type === 'error' ? '#ef4444' : '#1e293b';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+    toast.className = 'toast show ' + type;
+    toast.style.background = type === 'error' ? '#ef4444' : 
+                            type === 'warning' ? '#f59e0b' : '#1e293b';
+    toast.style.color = type === 'warning' ? '#1e1e2a' : '#fff';
+    setTimeout(() => toast.classList.remove('show'), 5000);
 }
 
 // =====================================================================
-// 1. AUTH LOGIC (index.html)
+// TRIAL CHECK & TIMER LOGIC (NEW)
+// =====================================================================
+
+let trialCheckInterval = null;
+let alertShown6Days = false;
+let alertShown3Days = false;
+
+async function checkTrialStatus() {
+    const token = getToken();
+    if (!token) return;
+    
+    const data = await apiFetch('/api/trial-status');
+    if (data.error) {
+        console.error('Trial status error:', data.error);
+        return;
+    }
+    
+    const daysLeft = data.remaining_days;
+    const isSubscribed = data.is_subscribed;
+    const isExpired = data.is_expired;
+    const banner = document.getElementById('trialBanner');
+    const daysElement = document.getElementById('trialDays');
+    const progressBar = document.getElementById('trialProgressBar');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    
+    if (!banner) return;
+    
+    // Show banner
+    banner.style.display = 'block';
+    
+    if (isSubscribed) {
+        // Subscribed user
+        banner.style.background = '#dbeafe';
+        banner.style.borderColor = '#3b82f6';
+        document.getElementById('trialStatusText').textContent = '✅ You are subscribed!';
+        daysElement.textContent = '∞';
+        document.getElementById('trialDaysLabel').textContent = '';
+        progressBar.style.width = '100%';
+        progressBar.style.background = '#3b82f6';
+        upgradeBtn.style.display = 'none';
+        return;
+    }
+    
+    if (isExpired || daysLeft <= 0) {
+        // Trial expired
+        banner.style.background = '#fee2e2';
+        banner.style.borderColor = '#ef4444';
+        document.getElementById('trialStatusText').textContent = '⛔ Your trial has expired!';
+        daysElement.textContent = '0';
+        document.getElementById('trialDaysLabel').textContent = 'days';
+        progressBar.style.width = '0%';
+        progressBar.style.background = '#ef4444';
+        upgradeBtn.textContent = 'Subscribe Now';
+        upgradeBtn.style.display = 'block';
+        upgradeBtn.style.background = '#ef4444';
+        showToast('⛔ Your trial has expired! Please subscribe to continue.', 'error');
+        disableTrialFeatures();
+        return;
+    }
+    
+    // Update timer
+    document.getElementById('trialStatusText').textContent = 'Your free trial ends in:';
+    daysElement.textContent = daysLeft;
+    document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
+    
+    // Progress bar
+    const progress = (daysLeft / 14) * 100;
+    progressBar.style.width = progress + '%';
+    progressBar.style.background = '#22c55e';
+    
+    // Alert system
+    if (daysLeft <= 6 && daysLeft > 3 && !alertShown6Days) {
+        // 6 days left: Yellow alert
+        alertShown6Days = true;
+        banner.style.background = '#fef3c7';
+        banner.style.borderColor = '#f59e0b';
+        progressBar.style.background = '#f59e0b';
+        showToast('⚠️ Your free trial ends in ' + daysLeft + ' days! Upgrade now.', 'warning');
+        upgradeBtn.style.display = 'block';
+        upgradeBtn.textContent = 'Upgrade Now';
+        upgradeBtn.style.background = '#f59e0b';
+    }
+    else if (daysLeft <= 3 && daysLeft > 0 && !alertShown3Days) {
+        // 3 days left: Red alert
+        alertShown3Days = true;
+        banner.style.background = '#fee2e2';
+        banner.style.borderColor = '#ef4444';
+        progressBar.style.background = '#ef4444';
+        showToast('🚨 URGENT: Only ' + daysLeft + ' days left in your trial! Subscribe now.', 'error');
+        upgradeBtn.style.display = 'block';
+        upgradeBtn.textContent = 'Subscribe Now';
+        upgradeBtn.style.background = '#ef4444';
+    }
+    else if (daysLeft <= 3 && daysLeft > 0) {
+        // Keep red style
+        banner.style.background = '#fee2e2';
+        banner.style.borderColor = '#ef4444';
+        progressBar.style.background = '#ef4444';
+        upgradeBtn.style.display = 'block';
+        upgradeBtn.textContent = 'Subscribe Now';
+        upgradeBtn.style.background = '#ef4444';
+    }
+    else {
+        // Normal state
+        banner.style.background = '#dbeafe';
+        banner.style.borderColor = '#3b82f6';
+        progressBar.style.background = '#22c55e';
+        upgradeBtn.style.display = 'none';
+    }
+}
+
+function disableTrialFeatures() {
+    // Disable add/edit/delete buttons
+    document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn').forEach(el => {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+        el.style.cursor = 'not-allowed';
+    });
+    document.querySelectorAll('form input, form select, form textarea').forEach(el => {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+    });
+    document.querySelectorAll('.switch input').forEach(el => {
+        el.disabled = true;
+    });
+    document.querySelector('form button[type="submit"]').disabled = true;
+    document.querySelector('form button[type="submit"]').style.opacity = '0.5';
+    document.querySelector('form button[type="submit"]').style.cursor = 'not-allowed';
+    showToast('⛔ Trial expired. Subscribe to continue using features.', 'error');
+}
+
+function upgradeNow() {
+    // Redirect to subscription page or show payment modal
+    // For now, redirect to pricing section or contact
+    if (confirm('Your free trial has ended. Would you like to subscribe now?')) {
+        // In production, redirect to payment page
+        // window.location.href = 'subscribe.html';
+        alert('🚀 Subscription page coming soon! For now, contact support.');
+    }
+}
+
+// =====================================================================
+// 1. AUTH LOGIC (auth.html)
 // =====================================================================
 const authForm = document.getElementById('authForm');
 if (authForm) {
@@ -157,14 +299,12 @@ if (menuForm) {
         if (isInitialized) return;
         
         if (!getToken()) {
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
             return;
         }
 
         try {
-            console.log('Fetching /api/me with token:', getToken());
             const data = await apiFetch('/api/me', 'GET');
-            console.log('/api/me response:', data);
             
             if (data && data.id) {
                 isInitialized = true;
@@ -173,10 +313,22 @@ if (menuForm) {
                 document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
+                
+                // Check trial status
+                if (data.is_trial_expired && !data.is_subscribed) {
+                    disableTrialFeatures();
+                }
+                
                 await loadMenuItems();
+                
+                // Start trial check interval (every 60 seconds)
+                if (trialCheckInterval) clearInterval(trialCheckInterval);
+                await checkTrialStatus();
+                trialCheckInterval = setInterval(checkTrialStatus, 60000);
+                
             } else if (data.error === 'Unauthorized') {
                 localStorage.removeItem('scaneats_token');
-                window.location.href = 'index.html';
+                window.location.href = 'auth.html';
             } else {
                 setTimeout(initDashboard, 2000);
             }
@@ -188,7 +340,8 @@ if (menuForm) {
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('scaneats_token');
-        window.location.href = 'index.html';
+        if (trialCheckInterval) clearInterval(trialCheckInterval);
+        window.location.href = 'auth.html';
     });
 
     async function loadMenuItems() {
@@ -197,7 +350,7 @@ if (menuForm) {
         
         if (!getToken()) {
             list.innerHTML = '<p class="loading-text" style="color:red;">Please login again</p>';
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
             return;
         }
         
@@ -254,7 +407,7 @@ if (menuForm) {
     window.toggleActive = async (id) => {
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
             return;
         }
         
@@ -274,7 +427,7 @@ if (menuForm) {
         
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
             return;
         }
         
@@ -290,11 +443,7 @@ if (menuForm) {
         const method = id ? 'PUT' : 'POST';
         const endpoint = id ? `/api/menu-items/${id}` : '/api/menu-items';
         
-        console.log('Sending request:', { method, endpoint, payload });
-        
         const data = await apiFetch(endpoint, method, payload);
-        
-        console.log('Response:', data);
 
         if (data.success) {
             showToast(id ? 'Item updated!' : 'Item added!');
@@ -325,7 +474,7 @@ if (menuForm) {
         
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
             return;
         }
         
@@ -350,7 +499,7 @@ if (menuForm) {
     document.getElementById('generateQrBtn').addEventListener('click', async () => {
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
             return;
         }
         
