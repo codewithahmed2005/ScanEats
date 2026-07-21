@@ -389,3 +389,144 @@ input:checked + .slider:before { transform: translateX(18px); }
     }
 
 }
+
+/* Add these styles at the end of your existing style.css */
+
+/* =====================================================
+   TRIAL BANNER (Top of Page)
+===================================================== */
+
+.trial-banner {
+    background: #dbeafe;
+    border-bottom: 3px solid #3b82f6;
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.trial-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.trial-icon {
+    font-size: 1.3rem;
+}
+
+.trial-text {
+    font-size: 0.95rem;
+    color: #1e1e2a;
+    font-weight: 500;
+}
+
+.trial-text strong {
+    font-size: 1.2rem;
+    color: #1e1e2a;
+}
+
+.trial-progress {
+    flex: 1;
+    min-width: 100px;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.trial-progress-bar {
+    height: 100%;
+    background: #22c55e;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.trial-upgrade-btn {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 6px 18px;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    display: none;
+}
+
+.trial-upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* =====================================================
+   TOAST STYLES (Updated)
+===================================================== */
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 10000;
+    max-width: 400px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.warning {
+    background: #f59e0b;
+    color: #1e1e2a;
+}
+
+.toast.error {
+    background: #ef4444;
+    color: #fff;
+}
+
+.toast.success {
+    background: #22c55e;
+    color: #fff;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+    .trial-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .trial-text {
+        font-size: 0.85rem;
+        text-align: center;
+    }
+    
+    .trial-upgrade-btn {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .trial-progress {
+        min-width: 50px;
+    }
+}
