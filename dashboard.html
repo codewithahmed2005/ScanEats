@@ -7,6 +7,22 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+     <!-- ===== TRIAL BANNER (Top of Page) ===== -->
+    <div id="trialBanner" class="trial-banner" style="display:none;">
+        <div class="trial-content">
+            <span class="trial-icon">⏳</span>
+            <span class="trial-text">
+                <span id="trialStatusText">Your free trial ends in:</span>
+                <strong id="trialDays">14</strong> <span id="trialDaysLabel">days</span>
+            </span>
+            <div class="trial-progress">
+                <div id="trialProgressBar" style="width: 100%;"></div>
+            </div>
+            <button onclick="upgradeNow()" class="trial-upgrade-btn" id="upgradeBtn">Upgrade Now</button>
+        </div>
+    </div>
+    
     <nav class="navbar">
         <div class="nav-brand">
             <span>🍽️ <span id="restoName">ScanEats</span></span>
