@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-body">
-    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="spinner"></div>
     </div>
@@ -19,32 +18,24 @@
                 <i class="fas fa-qrcode"></i> ScanEats
             </a>
             <h2 id="formTitle">Welcome Back</h2>
-            
             <div id="errorMsg" class="error-msg"></div>
-
             <form id="authForm" novalidate>
                 <div id="signupFields" style="display:none;">
                     <input type="text" id="restaurant_name" placeholder="Restaurant Name">
                     <input type="text" id="owner_name" placeholder="Owner Name">
                 </div>
                 <input type="email" id="email" placeholder="Email Address" required>
-                
                 <div class="password-wrapper">
                     <input type="password" id="password" placeholder="Password" required>
                     <span class="toggle-password" id="togglePassword">👁️</span>
                 </div>
-                
                 <button type="submit" class="btn-primary" id="submitBtn">Login</button>
             </form>
-            
             <p class="toggle-text">
                 <span id="toggleText">Don't have an account?</span>
                 <a href="#" id="toggleForm">Sign up here</a>
             </p>
-            
-            <a href="index.html" class="auth-back-link">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
+            <a href="index.html" class="auth-back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
         </div>
     </div>
     <script src="./app.js"></script>
