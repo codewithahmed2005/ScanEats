@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScanEats - Login / Signup</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-body">
@@ -14,34 +16,36 @@
 
     <div class="auth-container">
         <div class="auth-card">
-            <div class="logo">🍽️ ScanEats</div>
-            <h2 id="formTitle">Login to your Account</h2>
+            <a href="index.html" class="logo" style="text-decoration:none;">
+                <i class="fas fa-qrcode"></i> ScanEats
+            </a>
+            <h2 id="formTitle">Welcome Back</h2>
             
-            <div id="errorMsg" class="error-msg" style="display:none;"></div>
+            <div id="errorMsg" class="error-msg"></div>
 
             <form id="authForm">
                 <div id="signupFields" style="display:none;">
-                    <input type="text" id="restaurant_name" placeholder="Restaurant Name">
-                    <input type="text" id="owner_name" placeholder="Owner Name">
+                    <input type="text" id="restaurant_name" placeholder="Restaurant Name" required>
+                    <input type="text" id="owner_name" placeholder="Owner Name" required>
                 </div>
                 <input type="email" id="email" placeholder="Email Address" required>
                 
-                <!-- Password Field with Toggle -->
                 <div class="password-wrapper">
                     <input type="password" id="password" placeholder="Password" required>
                     <span class="toggle-password" id="togglePassword">👁️</span>
                 </div>
                 
-                <button type="submit" class="btn-primary">Login</button>
+                <button type="submit" class="btn-primary" id="submitBtn">Login</button>
             </form>
             
             <p class="toggle-text">
-                Don't have an account? <a href="#" id="toggleForm">Sign up here</a>
+                <span id="toggleText">Don't have an account?</span>
+                <a href="#" id="toggleForm">Sign up here</a>
             </p>
             
-            <p class="toggle-text" style="margin-top: 10px;">
-                <a href="index.html">← Back to Home</a>
-            </p>
+            <a href="index.html" class="auth-back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
         </div>
     </div>
     <script src="app.js"></script>
