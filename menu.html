@@ -8,6 +8,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="menu-body">
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <i class="fas fa-qrcode"></i> ScanEats
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="auth.html" class="nav-cta">Login</a></li>
+        </ul>
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
     <header class="menu-header">
         <h1 id="restaurantName">Loading Menu...</h1>
         <p>Fresh • Delicious • Made with Love</p>
@@ -32,6 +45,6 @@
         <p>Powered by <strong>ScanEats</strong></p>
     </footer>
 
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
 </body>
 </html>
