@@ -4,27 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MenuQR · Digital Menu SaaS</title>
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ----- RESET & BASE ----- */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-
     body {
       background: #ffffff;
       color: #1e1e2a;
       line-height: 1.6;
     }
-
-    /* ======================================== */
-    /* ===== NAVBAR ===== */
-    /* ======================================== */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -34,14 +27,13 @@
       margin: 0 auto;
       flex-wrap: wrap;
       gap: 1rem;
+      position: relative;
     }
-
     @media (max-width: 768px) {
       .navbar {
         padding: 1rem;
       }
     }
-
     .logo {
       display: flex;
       align-items: center;
@@ -51,12 +43,10 @@
       color: #1e1e2a;
       text-decoration: none;
     }
-
     .logo i {
       color: #c17b3a;
       font-size: 1.8rem;
     }
-
     .nav-links {
       display: flex;
       align-items: center;
@@ -64,7 +54,6 @@
       list-style: none;
       transition: all 0.3s ease;
     }
-
     @media (max-width: 768px) {
       .nav-links {
         display: none;
@@ -78,6 +67,10 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         margin-top: 0.5rem;
         border: 1px solid #ede8e2;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        z-index: 999;
       }
       .nav-links.active {
         display: flex !important;
@@ -87,8 +80,12 @@
         width: 100%;
         text-align: center;
       }
+      .nav-links .nav-cta {
+        width: auto;
+        display: inline-block;
+        margin: 0 auto;
+      }
     }
-
     .nav-links a {
       text-decoration: none;
       color: #4a4a5a;
@@ -96,11 +93,9 @@
       font-size: 0.95rem;
       transition: 0.2s;
     }
-
     .nav-links a:hover {
       color: #c17b3a;
     }
-
     .nav-cta {
       background: #1e1e2a;
       color: #fff !important;
@@ -108,12 +103,10 @@
       border-radius: 40px;
       font-weight: 600;
     }
-
     .nav-cta:hover {
       background: #2d2d3a !important;
       color: #fff !important;
     }
-
     .mobile-menu-toggle {
       display: none;
       font-size: 1.5rem;
@@ -123,21 +116,16 @@
       border: none;
       padding: 0.5rem;
       transition: 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
-
     .mobile-menu-toggle:hover {
       color: #c17b3a;
     }
-
     @media (max-width: 768px) {
       .mobile-menu-toggle {
         display: block;
       }
     }
-
-    /* ======================================== */
-    /* ===== HERO SECTION ===== */
-    /* ======================================== */
     .hero {
       max-width: 1200px;
       margin: 0 auto;
@@ -147,7 +135,6 @@
       gap: 3rem;
       align-items: center;
     }
-
     @media (max-width: 968px) {
       .hero {
         grid-template-columns: 1fr;
@@ -156,7 +143,6 @@
         gap: 2rem;
       }
     }
-
     .hero-content h1 {
       font-size: 3rem;
       font-weight: 800;
@@ -164,42 +150,35 @@
       margin-bottom: 1rem;
       letter-spacing: -1px;
     }
-
     @media (max-width: 768px) {
       .hero-content h1 {
         font-size: 2.2rem;
       }
     }
-
     .hero-content h1 span {
       color: #c17b3a;
     }
-
     .hero-content p {
       font-size: 1.15rem;
       color: #5a5a6a;
       margin-bottom: 2rem;
       max-width: 500px;
     }
-
     @media (max-width: 968px) {
       .hero-content p {
         max-width: 100%;
       }
     }
-
     .hero-buttons {
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
     }
-
     @media (max-width: 968px) {
       .hero-buttons {
         justify-content: center;
       }
     }
-
     .btn-primary {
       background: #1e1e2a;
       color: #fff;
@@ -215,12 +194,10 @@
       cursor: pointer;
       font-size: 1rem;
     }
-
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
-
     .btn-secondary {
       background: #f4f2ef;
       color: #1e1e2a;
@@ -234,46 +211,38 @@
       transition: 0.2s;
       border: 1px solid #e0dad4;
     }
-
     .btn-secondary:hover {
       background: #e8e4de;
     }
-
     .hero-stats {
       display: flex;
       gap: 2.5rem;
       margin-top: 2.5rem;
       flex-wrap: wrap;
     }
-
     @media (max-width: 968px) {
       .hero-stats {
         justify-content: center;
       }
     }
-
     .hero-stats .stat {
       display: flex;
       flex-direction: column;
     }
-
     .hero-stats .stat .number {
       font-size: 1.8rem;
       font-weight: 700;
       color: #1e1e2a;
     }
-
     .hero-stats .stat .label {
       font-size: 0.85rem;
       color: #6b6b7a;
     }
-
     .hero-image {
       display: flex;
       justify-content: center;
       align-items: center;
     }
-
     .hero-image .mockup {
       background: #f9f7f5;
       border-radius: 24px;
@@ -282,31 +251,26 @@
       max-width: 100%;
       width: 100%;
     }
-
     .hero-image .mockup .mockup-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1rem;
     }
-
     .hero-image .mockup .mockup-header span {
       font-weight: 600;
       font-size: 0.9rem;
     }
-
     .hero-image .mockup .mockup-header .dots {
       display: flex;
       gap: 6px;
     }
-
     .hero-image .mockup .mockup-header .dots span {
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background: #d5cdc0;
     }
-
     .hero-image .mockup .mockup-header .dots span:first-child {
       background: #e57373;
     }
@@ -316,13 +280,11 @@
     .hero-image .mockup .mockup-header .dots span:last-child {
       background: #81c784;
     }
-
     .hero-image .mockup .mockup-body {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
-
     .hero-image .mockup .mockup-body .card {
       background: #ffffff;
       padding: 1rem 0.8rem;
@@ -330,7 +292,6 @@
       text-align: center;
       border: 1px solid #f0ece6;
     }
-
     .hero-image .mockup .mockup-body .card .emoji {
       font-size: 2rem;
     }
@@ -343,42 +304,32 @@
       font-size: 0.8rem;
       color: #6b6b7a;
     }
-
-    /* ======================================== */
-    /* ===== FEATURES SECTION ===== */
-    /* ======================================== */
     .features {
       background: #f9f7f5;
       padding: 4rem 2rem;
     }
-
     .features-container {
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .section-title {
       text-align: center;
       margin-bottom: 3rem;
     }
-
     .section-title h2 {
       font-size: 2.2rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
-
     .section-title p {
       color: #5a5a6a;
       font-size: 1.1rem;
     }
-
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 2rem;
     }
-
     .feature-card {
       background: #ffffff;
       padding: 2rem 1.5rem;
@@ -387,48 +338,37 @@
       transition: 0.2s;
       text-align: center;
     }
-
     .feature-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
     }
-
     .feature-card .icon {
       font-size: 2.5rem;
       color: #c17b3a;
       margin-bottom: 1rem;
     }
-
     .feature-card h3 {
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
     }
-
     .feature-card p {
       color: #5a5a6a;
       font-size: 0.95rem;
     }
-
-    /* ======================================== */
-    /* ===== HOW IT WORKS ===== */
-    /* ======================================== */
     .how-it-works {
       padding: 4rem 2rem;
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .steps {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 2rem;
       margin-top: 2rem;
     }
-
     .step {
       text-align: center;
     }
-
     .step .step-number {
       background: #1e1e2a;
       color: #fff;
@@ -442,37 +382,28 @@
       font-size: 1.2rem;
       margin: 0 auto 1rem;
     }
-
     .step h4 {
       font-size: 1.1rem;
       margin-bottom: 0.3rem;
     }
-
     .step p {
       color: #5a5a6a;
       font-size: 0.9rem;
     }
-
-    /* ======================================== */
-    /* ===== PRICING / PLANS ===== */
-    /* ======================================== */
     .pricing {
       background: #f9f7f5;
       padding: 4rem 2rem;
     }
-
     .pricing-container {
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
       margin-top: 2rem;
     }
-
     .pricing-card {
       background: #ffffff;
       padding: 2.5rem 2rem;
@@ -481,17 +412,14 @@
       text-align: center;
       transition: 0.2s;
     }
-
     .pricing-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
     }
-
     .pricing-card.popular {
       border-color: #c17b3a;
       position: relative;
     }
-
     .pricing-card.popular::before {
       content: 'Most Popular';
       position: absolute;
@@ -505,32 +433,27 @@
       font-size: 0.75rem;
       font-weight: 600;
     }
-
     .pricing-card .plan-name {
       font-size: 1.2rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
     }
-
     .pricing-card .price {
       font-size: 3rem;
       font-weight: 800;
       color: #1e1e2a;
       margin: 0.5rem 0;
     }
-
     .pricing-card .price span {
       font-size: 1rem;
       font-weight: 400;
       color: #6b6b7a;
     }
-
     .pricing-card .features-list {
       list-style: none;
       text-align: left;
       margin: 1.5rem 0;
     }
-
     .pricing-card .features-list li {
       padding: 0.4rem 0;
       display: flex;
@@ -539,12 +462,10 @@
       color: #4a4a5a;
       font-size: 0.9rem;
     }
-
     .pricing-card .features-list li i {
       color: #81c784;
       width: 20px;
     }
-
     .pricing-card .btn-plan {
       background: #1e1e2a;
       color: #fff;
@@ -559,53 +480,39 @@
       font-size: 1rem;
       width: 100%;
     }
-
     .pricing-card .btn-plan:hover {
       background: #2d2d3a;
       transform: translateY(-2px);
     }
-
     .pricing-card .btn-plan.outline {
       background: transparent;
       color: #1e1e2a;
       border: 2px solid #e0dad4;
     }
-
     .pricing-card .btn-plan.outline:hover {
       background: #f4f2ef;
     }
-
-    /* ======================================== */
-    /* ===== CTA SECTION ===== */
-    /* ======================================== */
     .cta-section {
       padding: 4rem 2rem;
       max-width: 1200px;
       margin: 0 auto;
       text-align: center;
     }
-
     .cta-section h2 {
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
-
     .cta-section p {
       color: #5a5a6a;
       font-size: 1.1rem;
       margin-bottom: 2rem;
     }
-
-    /* ======================================== */
-    /* ===== FOOTER ===== */
-    /* ======================================== */
     .footer {
       background: #1e1e2a;
       color: #b8b0a6;
       padding: 3rem 2rem 2rem;
     }
-
     .footer-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -613,13 +520,11 @@
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 2rem;
     }
-
     .footer h4 {
       color: #ffffff;
       margin-bottom: 0.8rem;
       font-size: 0.9rem;
     }
-
     .footer a {
       color: #b8b0a6;
       text-decoration: none;
@@ -628,21 +533,17 @@
       padding: 0.2rem 0;
       transition: 0.2s;
     }
-
     .footer a:hover {
       color: #ffffff;
     }
-
     .footer .social {
       display: flex;
       gap: 1rem;
       margin-top: 0.5rem;
     }
-
     .footer .social a {
       font-size: 1.2rem;
     }
-
     .footer-bottom {
       max-width: 1200px;
       margin: 2rem auto 0;
@@ -652,54 +553,41 @@
       font-size: 0.8rem;
       color: #6b6b8a;
     }
-
-    /* ======================================== */
-    /* ===== RESPONSIVE ===== */
-    /* ======================================== */
     @media (max-width: 768px) {
       .section-title h2 {
         font-size: 1.8rem;
       }
-
       .features-grid {
         grid-template-columns: 1fr;
       }
-
       .steps {
         grid-template-columns: 1fr;
       }
-
       .pricing-grid {
         grid-template-columns: 1fr;
         max-width: 400px;
         margin: 2rem auto 0;
       }
-
       .hero-image .mockup .mockup-body {
         grid-template-columns: repeat(2, 1fr);
       }
     }
-
     @media (max-width: 480px) {
       .hero-image .mockup .mockup-body {
         grid-template-columns: 1fr 1fr;
       }
-
       .hero-image .mockup {
         padding: 1rem;
       }
-
       .hero-buttons {
         flex-direction: column;
         align-items: center;
       }
-
       .hero-buttons .btn-primary,
       .hero-buttons .btn-secondary {
         width: 100%;
         justify-content: center;
       }
-
       .hero-stats {
         flex-direction: column;
         align-items: center;
@@ -710,9 +598,6 @@
 </head>
 <body>
 
-<!-- ========================================== -->
-<!-- ===== NAVBAR ===== -->
-<!-- ========================================== -->
 <nav class="navbar">
   <a href="#" class="logo">
     <i class="fas fa-qrcode"></i> MenuQR
@@ -728,157 +613,63 @@
   </button>
 </nav>
 
-<!-- ========================================== -->
-<!-- ===== HERO SECTION ===== -->
-<!-- ========================================== -->
 <section class="hero">
   <div class="hero-content">
     <h1>Digital Menu with <span>QR Code</span> for Restaurants</h1>
-    <p>
-      Create stunning digital menus, generate QR codes, and let your customers
-      browse your menu instantly — no app download required.
-    </p>
+    <p>Create stunning digital menus, generate QR codes, and let your customers browse your menu instantly — no app download required.</p>
     <div class="hero-buttons">
-      <a href="auth.html" class="btn-primary">
-        <i class="fas fa-rocket"></i> Start Free Trial
-      </a>
-      <a href="#how-it-works" class="btn-secondary">
-        <i class="fas fa-play-circle"></i> See How It Works
-      </a>
+      <a href="auth.html" class="btn-primary"><i class="fas fa-rocket"></i> Start Free Trial</a>
+      <a href="#how-it-works" class="btn-secondary"><i class="fas fa-play-circle"></i> See How It Works</a>
     </div>
     <div class="hero-stats">
-      <div class="stat">
-        <span class="number">5,000+</span>
-        <span class="label">Restaurants Using</span>
-      </div>
-      <div class="stat">
-        <span class="number">1.2M+</span>
-        <span class="label">QR Scans</span>
-      </div>
-      <div class="stat">
-        <span class="number">98%</span>
-        <span class="label">Satisfaction Rate</span>
-      </div>
+      <div class="stat"><span class="number">5,000+</span><span class="label">Restaurants Using</span></div>
+      <div class="stat"><span class="number">1.2M+</span><span class="label">QR Scans</span></div>
+      <div class="stat"><span class="number">98%</span><span class="label">Satisfaction Rate</span></div>
     </div>
   </div>
   <div class="hero-image">
     <div class="mockup">
       <div class="mockup-header">
         <span><i class="fas fa-utensils"></i> Tasty Bites</span>
-        <div class="dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <div class="dots"><span></span><span></span><span></span></div>
       </div>
       <div class="mockup-body">
-        <div class="card">
-          <div class="emoji">🍕</div>
-          <div class="name">Margherita</div>
-          <div class="price">$12.50</div>
-        </div>
-        <div class="card">
-          <div class="emoji">🍔</div>
-          <div class="name">Classic Burger</div>
-          <div class="price">$14.00</div>
-        </div>
-        <div class="card">
-          <div class="emoji">🍣</div>
-          <div class="name">Salmon Roll</div>
-          <div class="price">$16.20</div>
-        </div>
-        <div class="card">
-          <div class="emoji">🥗</div>
-          <div class="name">Greek Salad</div>
-          <div class="price">$9.90</div>
-        </div>
+        <div class="card"><div class="emoji">🍕</div><div class="name">Margherita</div><div class="price">$12.50</div></div>
+        <div class="card"><div class="emoji">🍔</div><div class="name">Classic Burger</div><div class="price">$14.00</div></div>
+        <div class="card"><div class="emoji">🍣</div><div class="name">Salmon Roll</div><div class="price">$16.20</div></div>
+        <div class="card"><div class="emoji">🥗</div><div class="name">Greek Salad</div><div class="price">$9.90</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ========================================== -->
-<!-- ===== FEATURES ===== -->
-<!-- ========================================== -->
 <section class="features" id="features">
   <div class="features-container">
-    <div class="section-title">
-      <h2>Everything You Need for Digital Menu</h2>
-      <p>Simple, powerful tools to manage your restaurant menu</p>
-    </div>
+    <div class="section-title"><h2>Everything You Need for Digital Menu</h2><p>Simple, powerful tools to manage your restaurant menu</p></div>
     <div class="features-grid">
-      <div class="feature-card">
-        <div class="icon"><i class="fas fa-edit"></i></div>
-        <h3>Easy Menu Management</h3>
-        <p>Add, edit, or remove dishes in seconds. Update your menu instantly.</p>
-      </div>
-      <div class="feature-card">
-        <div class="icon"><i class="fas fa-qrcode"></i></div>
-        <h3>QR Code Generator</h3>
-        <p>Generate QR codes automatically. Download and print for tables.</p>
-      </div>
-      <div class="feature-card">
-        <div class="icon"><i class="fas fa-mobile-alt"></i></div>
-        <h3>No App Required</h3>
-        <p>Customers scan QR and view menu instantly in their browser.</p>
-      </div>
-      <div class="feature-card">
-        <div class="icon"><i class="fas fa-chart-line"></i></div>
-        <h3>Analytics Dashboard</h3>
-        <p>Track views, popular dishes, and customer engagement.</p>
-      </div>
-      <div class="feature-card">
-        <div class="icon"><i class="fas fa-globe"></i></div>
-        <h3>Multi-Language Support</h3>
-        <p>Reach more customers with multilingual menu options.</p>
-      </div>
-      <div class="feature-card">
-        <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-        <h3>Real-Time Updates</h3>
-        <p>Changes reflect instantly. No need to reprint menus.</p>
-      </div>
+      <div class="feature-card"><div class="icon"><i class="fas fa-edit"></i></div><h3>Easy Menu Management</h3><p>Add, edit, or remove dishes in seconds. Update your menu instantly.</p></div>
+      <div class="feature-card"><div class="icon"><i class="fas fa-qrcode"></i></div><h3>QR Code Generator</h3><p>Generate QR codes automatically. Download and print for tables.</p></div>
+      <div class="feature-card"><div class="icon"><i class="fas fa-mobile-alt"></i></div><h3>No App Required</h3><p>Customers scan QR and view menu instantly in their browser.</p></div>
+      <div class="feature-card"><div class="icon"><i class="fas fa-chart-line"></i></div><h3>Analytics Dashboard</h3><p>Track views, popular dishes, and customer engagement.</p></div>
+      <div class="feature-card"><div class="icon"><i class="fas fa-globe"></i></div><h3>Multi-Language Support</h3><p>Reach more customers with multilingual menu options.</p></div>
+      <div class="feature-card"><div class="icon"><i class="fas fa-cloud-upload-alt"></i></div><h3>Real-Time Updates</h3><p>Changes reflect instantly. No need to reprint menus.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ========================================== -->
-<!-- ===== HOW IT WORKS ===== -->
-<!-- ========================================== -->
 <section class="how-it-works" id="how-it-works">
-  <div class="section-title">
-    <h2>How It Works</h2>
-    <p>Get started in 3 simple steps</p>
-  </div>
+  <div class="section-title"><h2>How It Works</h2><p>Get started in 3 simple steps</p></div>
   <div class="steps">
-    <div class="step">
-      <div class="step-number">1</div>
-      <h4>Create Your Menu</h4>
-      <p>Add dishes with name, price, description, and emoji.</p>
-    </div>
-    <div class="step">
-      <div class="step-number">2</div>
-      <h4>Generate QR Code</h4>
-      <p>Download QR code and place it on tables or counter.</p>
-    </div>
-    <div class="step">
-      <div class="step-number">3</div>
-      <h4>Customers Scan & View</h4>
-      <p>Scan QR and see your digital menu instantly.</p>
-    </div>
+    <div class="step"><div class="step-number">1</div><h4>Create Your Menu</h4><p>Add dishes with name, price, description, and emoji.</p></div>
+    <div class="step"><div class="step-number">2</div><h4>Generate QR Code</h4><p>Download QR code and place it on tables or counter.</p></div>
+    <div class="step"><div class="step-number">3</div><h4>Customers Scan & View</h4><p>Scan QR and see your digital menu instantly.</p></div>
   </div>
 </section>
 
-<!-- ========================================== -->
-<!-- ===== PRICING / PLANS ===== -->
-<!-- ========================================== -->
 <section class="pricing" id="pricing">
   <div class="pricing-container">
-    <div class="section-title">
-      <h2>Simple, Transparent Pricing</h2>
-      <p>Choose the plan that fits your restaurant</p>
-    </div>
+    <div class="section-title"><h2>Simple, Transparent Pricing</h2><p>Choose the plan that fits your restaurant</p></div>
     <div class="pricing-grid">
-      <!-- Free Plan -->
       <div class="pricing-card">
         <div class="plan-name">Free</div>
         <div class="price">$0 <span>/month</span></div>
@@ -890,8 +681,6 @@
         </ul>
         <a href="auth.html" class="btn-plan outline">Get Started</a>
       </div>
-
-      <!-- Pro Plan (Popular) -->
       <div class="pricing-card popular">
         <div class="plan-name">Pro</div>
         <div class="price">$19 <span>/month</span></div>
@@ -905,8 +694,6 @@
         </ul>
         <a href="auth.html" class="btn-plan">Start Free Trial</a>
       </div>
-
-      <!-- Business Plan -->
       <div class="pricing-card">
         <div class="plan-name">Business</div>
         <div class="price">$49 <span>/month</span></div>
@@ -924,77 +711,40 @@
   </div>
 </section>
 
-<!-- ========================================== -->
-<!-- ===== CTA SECTION ===== -->
-<!-- ========================================== -->
 <section class="cta-section" id="cta">
   <h2>Ready to Go Digital?</h2>
   <p>Join 5,000+ restaurants already using MenuQR</p>
-  <a href="auth.html" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;">
-    <i class="fas fa-rocket"></i> Start Free Trial
-  </a>
-  <p style="margin-top: 1rem; font-size: 0.9rem; color: #8b8b9a;">
-    No credit card required · 14-day free trial
-  </p>
+  <a href="auth.html" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;"><i class="fas fa-rocket"></i> Start Free Trial</a>
+  <p style="margin-top: 1rem; font-size: 0.9rem; color: #8b8b9a;">No credit card required · 14-day free trial</p>
 </section>
 
-<!-- ========================================== -->
-<!-- ===== FOOTER ===== -->
-<!-- ========================================== -->
 <footer class="footer">
   <div class="footer-container">
     <div>
       <h4>MenuQR</h4>
-      <p style="font-size: 0.85rem; margin-top: 0.5rem;">
-        Digital menu solution for modern restaurants.
-      </p>
+      <p style="font-size: 0.85rem; margin-top: 0.5rem;">Digital menu solution for modern restaurants.</p>
       <div class="social">
         <a href="#"><i class="fab fa-twitter"></i></a>
         <a href="#"><i class="fab fa-linkedin-in"></i></a>
         <a href="#"><i class="fab fa-github"></i></a>
       </div>
     </div>
-    <div>
-      <h4>Product</h4>
-      <a href="#features">Features</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#how-it-works">How It Works</a>
-    </div>
-    <div>
-      <h4>Company</h4>
-      <a href="#">About</a>
-      <a href="#">Blog</a>
-      <a href="#">Careers</a>
-    </div>
-    <div>
-      <h4>Support</h4>
-      <a href="#">Help Center</a>
-      <a href="#">Contact</a>
-      <a href="#">Privacy Policy</a>
-    </div>
+    <div><h4>Product</h4><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#how-it-works">How It Works</a></div>
+    <div><h4>Company</h4><a href="#">About</a><a href="#">Blog</a><a href="#">Careers</a></div>
+    <div><h4>Support</h4><a href="#">Help Center</a><a href="#">Contact</a><a href="#">Privacy Policy</a></div>
   </div>
-  <div class="footer-bottom">
-    &copy; 2026 MenuQR. All rights reserved.
-  </div>
+  <div class="footer-bottom">&copy; 2026 MenuQR. All rights reserved.</div>
 </footer>
 
-<!-- ========================================== -->
-<!-- ===== JAVASCRIPT ===== -->
-<!-- ========================================== -->
 <script>
-  // =====================================================
-  // MOBILE MENU TOGGLE
-  // =====================================================
   document.addEventListener('DOMContentLoaded', function() {
     const mobileToggle = document.getElementById('mobileMenuToggle');
     const navLinks = document.getElementById('navLinks');
-    
     if (mobileToggle && navLinks) {
       mobileToggle.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         navLinks.classList.toggle('active');
-        
         const icon = this.querySelector('i');
         if (navLinks.classList.contains('active')) {
           icon.className = 'fas fa-times';
@@ -1002,44 +752,33 @@
           icon.className = 'fas fa-bars';
         }
       });
-      
       document.addEventListener('click', function(e) {
-        if (navLinks.classList.contains('active') && 
-            !navLinks.contains(e.target) && 
-            !mobileToggle.contains(e.target)) {
+        if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
           navLinks.classList.remove('active');
           const icon = mobileToggle.querySelector('i');
-          icon.className = 'fas fa-bars';
+          if (icon) icon.className = 'fas fa-bars';
         }
       });
-      
-      navLinks.querySelectorAll('a').forEach(link => {
+      navLinks.querySelectorAll('a').forEach(function(link) {
         link.addEventListener('click', function() {
           if (window.innerWidth <= 768) {
             navLinks.classList.remove('active');
             const icon = mobileToggle.querySelector('i');
-            icon.className = 'fas fa-bars';
+            if (icon) icon.className = 'fas fa-bars';
           }
         });
       });
     }
   });
-
-  // Smooth scroll for anchor links
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
     anchor.addEventListener('click', function(e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href'));
       if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   });
-
-  console.log('🚀 MenuQR Landing Page loaded!');
 </script>
 </body>
 </html>
