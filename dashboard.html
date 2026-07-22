@@ -4,107 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScanEats - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-     <!-- ===== TRIAL BANNER (Top of Page) ===== -->
+<body class="dashboard-body">
+    <!-- ===== TRIAL BANNER ===== -->
     <div id="trialBanner" class="trial-banner" style="display:none;">
         <div class="trial-content">
             <span class="trial-icon">⏳</span>
             <span class="trial-text">
                 <span id="trialStatusText">Your free trial ends in:</span>
-                <strong id="trialDays">14</strong> <span id="trialDaysLabel">days</span>
+                <strong id="trialDays">14</strong>
+                <span id="trialDaysLabel">days</span>
             </span>
             <div class="trial-progress">
-                <div id="trialProgressBar" style="width: 100%;"></div>
+                <div class="trial-progress-bar" id="trialProgressBar"></div>
             </div>
             <button onclick="upgradeNow()" class="trial-upgrade-btn" id="upgradeBtn">Upgrade Now</button>
         </div>
     </div>
-    
+
+    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
-        <div class="nav-brand">
-            <span>🍽️ <span id="restoName">ScanEats</span></span>
-        </div>
-        <div class="nav-actions">
-            <!-- Yahan href="#" hai, JS isme dynamically link daalega -->
-            <a href="#" id="viewMenuLink" target="_blank" class="btn-ghost">View Menu</a>
-            <button id="logoutBtn" class="btn-ghost">Logout</button>
-        </div>
+        <a href="#" class="logo">
+            <i class="fas fa-qrcode"></i> ScanEats
+            <span id="restoName" style="font-size:0.9rem; font-weight:400; color:var(--text-light); margin-left:8px;"></span>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#" id="viewMenuLink" target="_blank">View Menu</a></li>
+            <li><a href="#" id="logoutBtn" class="nav-cta">Logout</a></li>
+        </ul>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
     </nav>
 
+    <!-- ===== DASHBOARD CONTENT ===== -->
     <div class="dashboard-container">
-            <div class="dashboard-container">
-        <!-- NEW: Analytics Cards -->
+        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3 id="totalItems">0</h3><p>Total Items</p>
+                <h3 id="totalItems">0</h3>
+                <p>Total Items</p>
             </div>
             <div class="stat-card veg">
-                <h3 id="vegItems">0</h3><p>Veg Items</p>
+                <h3 id="vegItems">0</h3>
+                <p>Veg Items</p>
             </div>
             <div class="stat-card non-veg">
-                <h3 id="nonVegItems">0</h3><p>Non-Veg Items</p>
+                <h3 id="nonVegItems">0</h3>
+                <p>Non-Veg Items</p>
             </div>
         </div>
 
-        <!-- NEW: Profile Settings -->
-        <div class="card">
-            <div class="card-header">
-                <h3>⚙️ Restaurant Settings</h3>
-                <p>Update your menu page title and payment details.</p>
-            </div>
-            <form id="profileForm">
-                <input type="text" id="settings_resto_name" placeholder="Restaurant Name">
-                <input type="text" id="settings_upi_id" placeholder="UPI ID for payments (e.g., restaurant@upi)">
-                <button type="submit" class="btn-primary">Save Settings</button>
-            </form>
-        </div>
-
-        <!-- QR Section -->
-        <div class="card qr-card">
-            <div class="card-header">
-                <h3>Generate QR Code</h3>
-                <p>Download and place it on your tables.</p>
-            </div>
-            <div class="qr-body">
-                <div id="qrDisplay" class="qr-placeholder">QR will appear here</div>
-                <div class="qr-actions">
-                    <button id="generateQrBtn" class="btn-primary">⚡ Generate QR</button>
-                    <a id="downloadQrLink" href="#" class="btn-secondary" style="display:none;">⬇ Download</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Item Form -->
+        <!-- Add/Edit Menu Form -->
         <div class="card">
             <div class="card-header">
                 <h3 id="formTitle">➕ Add Menu Item</h3>
+                <p>Add new dishes to your digital menu</p>
             </div>
             <form id="menuForm">
-                <input type="hidden" id="itemId">
-                <input type="text" id="name" placeholder="Item Name (e.g., Paneer Tikka)" required>
+                <input type="hidden" id="itemId" value="">
+                <input type="text" id="name" placeholder="Item Name" required>
                 <textarea id="description" placeholder="Description (optional)"></textarea>
                 <div class="form-row">
                     <input type="number" id="price" placeholder="Price (₹)" step="0.01" required>
                     <select id="category" required>
-                        <option value="">Category</option>
-                        <option value="Starters">Starters</option>
+                        <option value="">Select Category</option>
+                        <option value="Appetizers">Appetizers</option>
                         <option value="Main Course">Main Course</option>
-                        <option value="Rice & Biryani">Rice & Biryani</option>
-                        <option value="Breads">Breads</option>
-                        <option value="Drinks">Drinks</option>
+                        <option value="Beverages">Beverages</option>
                         <option value="Desserts">Desserts</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
-                <select id="is_veg">
-                    <option value="true">🟢 Vegetarian</option>
-                    <option value="false">🔴 Non-Vegetarian</option>
-                </select>
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary" id="submitBtn">Add Item</button>
-                    <button type="button" class="btn-ghost" id="cancelBtn" style="display:none;">Cancel</button>
+                <div class="form-row">
+                    <select id="is_veg" required>
+                        <option value="true">🟢 Veg</option>
+                        <option value="false">🔴 Non-Veg</option>
+                    </select>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" id="submitBtn">Add Item</button>
+                        <button type="button" class="btn-secondary" id="cancelBtn" style="display:none;">Cancel</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -112,15 +95,50 @@
         <!-- Menu List -->
         <div class="card">
             <div class="card-header">
-                <h3>📦 Your Menu Items</h3>
+                <h3>📋 Your Menu</h3>
+                <p>Manage all your dishes</p>
             </div>
-            <div id="menuList" class="menu-list">
+            <div id="menuList">
                 <p class="loading-text">Loading items...</p>
             </div>
         </div>
+
+        <!-- QR Generator -->
+        <div class="card">
+            <div class="card-header">
+                <h3>📱 QR Code</h3>
+                <p>Generate QR code for your menu</p>
+            </div>
+            <div class="qr-body">
+                <div class="qr-placeholder" id="qrDisplay">
+                    <span>No QR generated yet</span>
+                </div>
+                <div class="qr-actions">
+                    <button id="generateQrBtn" class="btn-primary">Generate QR</button>
+                    <a id="downloadQrLink" download style="display:none;" class="btn-secondary">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Settings -->
+        <div class="card">
+            <div class="card-header">
+                <h3>⚙️ Settings</h3>
+                <p>Update your restaurant profile</p>
+            </div>
+            <form id="profileForm">
+                <input type="text" id="settings_resto_name" placeholder="Restaurant Name" required>
+                <input type="text" id="settings_upi_id" placeholder="UPI ID (for payments)">
+                <button type="submit" class="btn-primary">Save Settings</button>
+            </form>
+        </div>
     </div>
 
+    <!-- Toast -->
     <div id="toast" class="toast"></div>
+
     <script src="app.js"></script>
 </body>
 </html>
