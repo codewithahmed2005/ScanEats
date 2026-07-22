@@ -50,7 +50,50 @@ function showToast(msg, type = 'success') {
 }
 
 // =====================================================================
-// TRIAL CHECK & TIMER LOGIC (NEW)
+// MOBILE MENU TOGGLE (FIXED)
+// =====================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const navLinks = document.getElementById('navLinks');
+    
+    if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            navLinks.classList.toggle('active');
+            
+            const icon = this.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (navLinks.classList.contains('active') && 
+                !navLinks.contains(e.target) && 
+                !mobileToggle.contains(e.target)) {
+                navLinks.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    navLinks.classList.remove('active');
+                    const icon = mobileToggle.querySelector('i');
+                    icon.className = 'fas fa-bars';
+                }
+            });
+        });
+    }
+});
+
+// =====================================================================
+// TRIAL CHECK & TIMER LOGIC
 // =====================================================================
 
 let trialCheckInterval = null;
@@ -77,11 +120,9 @@ async function checkTrialStatus() {
     
     if (!banner) return;
     
-    // Show banner
     banner.style.display = 'block';
     
     if (isSubscribed) {
-        // Subscribed user
         banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
         document.getElementById('trialStatusText').textContent = '✅ You are subscribed!';
@@ -94,7 +135,6 @@ async function checkTrialStatus() {
     }
     
     if (isExpired || daysLeft <= 0) {
-        // Trial expired
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
         document.getElementById('trialStatusText').textContent = '⛔ Your trial has expired!';
@@ -110,19 +150,15 @@ async function checkTrialStatus() {
         return;
     }
     
-    // Update timer
     document.getElementById('trialStatusText').textContent = 'Your free trial ends in:';
     daysElement.textContent = daysLeft;
     document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
     
-    // Progress bar
     const progress = (daysLeft / 14) * 100;
     progressBar.style.width = progress + '%';
     progressBar.style.background = '#22c55e';
     
-    // Alert system
     if (daysLeft <= 6 && daysLeft > 3 && !alertShown6Days) {
-        // 6 days left: Yellow alert
         alertShown6Days = true;
         banner.style.background = '#fef3c7';
         banner.style.borderColor = '#f59e0b';
@@ -133,7 +169,6 @@ async function checkTrialStatus() {
         upgradeBtn.style.background = '#f59e0b';
     }
     else if (daysLeft <= 3 && daysLeft > 0 && !alertShown3Days) {
-        // 3 days left: Red alert
         alertShown3Days = true;
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
@@ -144,7 +179,6 @@ async function checkTrialStatus() {
         upgradeBtn.style.background = '#ef4444';
     }
     else if (daysLeft <= 3 && daysLeft > 0) {
-        // Keep red style
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
         progressBar.style.background = '#ef4444';
@@ -153,7 +187,6 @@ async function checkTrialStatus() {
         upgradeBtn.style.background = '#ef4444';
     }
     else {
-        // Normal state
         banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
         progressBar.style.background = '#22c55e';
@@ -162,7 +195,6 @@ async function checkTrialStatus() {
 }
 
 function disableTrialFeatures() {
-    // Disable add/edit/delete buttons
     document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn').forEach(el => {
         el.disabled = true;
         el.style.opacity = '0.5';
@@ -175,18 +207,17 @@ function disableTrialFeatures() {
     document.querySelectorAll('.switch input').forEach(el => {
         el.disabled = true;
     });
-    document.querySelector('form button[type="submit"]').disabled = true;
-    document.querySelector('form button[type="submit"]').style.opacity = '0.5';
-    document.querySelector('form button[type="submit"]').style.cursor = 'not-allowed';
+    const submitBtn = document.querySelector('form button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+    }
     showToast('⛔ Trial expired. Subscribe to continue using features.', 'error');
 }
 
 function upgradeNow() {
-    // Redirect to subscription page or show payment modal
-    // For now, redirect to pricing section or contact
     if (confirm('Your free trial has ended. Would you like to subscribe now?')) {
-        // In production, redirect to payment page
-        // window.location.href = 'subscribe.html';
         alert('🚀 Subscription page coming soon! For now, contact support.');
     }
 }
@@ -203,6 +234,7 @@ if (authForm) {
     }
 
     const toggleForm = document.getElementById('toggleForm');
+    const toggleText = document.getElementById('toggleText');
     const formTitle = document.getElementById('formTitle');
     const signupFields = document.getElementById('signupFields');
     const submitBtn = authForm.querySelector('button[type="submit"]');
@@ -217,56 +249,59 @@ if (authForm) {
         });
     }
 
-    toggleForm.addEventListener('click', (e) => {
+    toggleForm.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         isSignup = !isSignup;
         if (isSignup) {
             signupFields.style.display = 'block';
             formTitle.textContent = 'Create New Account';
             submitBtn.textContent = 'Sign Up';
             toggleForm.textContent = 'Login here';
+            toggleText.textContent = 'Already have an account?';
         } else {
             signupFields.style.display = 'none';
-            formTitle.textContent = 'Login to your Account';
+            formTitle.textContent = 'Welcome Back';
             submitBtn.textContent = 'Login';
             toggleForm.textContent = 'Sign up here';
+            toggleText.textContent = "Don't have an account?";
         }
     });
 
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();  // ← Yeh important hai!
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorDiv = document.getElementById('errorMsg');
-    errorDiv.style.display = 'none';
-    
-    let payload = { email, password };
-    let endpoint = '/api/login';
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMsg');
+        errorDiv.style.display = 'none';
+        
+        let payload = { email, password };
+        let endpoint = '/api/login';
 
-    if (isSignup) {
-        payload.restaurant_name = document.getElementById('restaurant_name').value;
-        payload.owner_name = document.getElementById('owner_name').value;
-        endpoint = '/api/signup';
-        if (!payload.restaurant_name || !payload.owner_name) {
-            errorDiv.textContent = 'Please fill all fields';
-            errorDiv.style.display = 'block';
-            return;
+        if (isSignup) {
+            payload.restaurant_name = document.getElementById('restaurant_name').value;
+            payload.owner_name = document.getElementById('owner_name').value;
+            endpoint = '/api/signup';
+            if (!payload.restaurant_name || !payload.owner_name) {
+                errorDiv.textContent = 'Please fill all fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
         }
-    }
 
-    loadingOverlay.style.display = 'flex';
+        loadingOverlay.style.display = 'flex';
 
-    const data = await apiFetch(endpoint, 'POST', payload);
-    loadingOverlay.style.display = 'none';
-    
-    if (data.success) {
-        localStorage.setItem('scaneats_token', data.token);
-        window.location.href = 'dashboard.html';
-    } else {
-        errorDiv.textContent = data.error || 'Something went wrong';
-        errorDiv.style.display = 'block';
-    }
-});
+        const data = await apiFetch(endpoint, 'POST', payload);
+        loadingOverlay.style.display = 'none';
+        
+        if (data.success) {
+            localStorage.setItem('scaneats_token', data.token);
+            window.location.href = 'dashboard.html';
+        } else {
+            errorDiv.textContent = data.error || 'Something went wrong';
+            errorDiv.style.display = 'block';
+        }
+    });
 }
 
 // =====================================================================
@@ -314,14 +349,12 @@ if (menuForm) {
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
                 
-                // Check trial status
                 if (data.is_trial_expired && !data.is_subscribed) {
                     disableTrialFeatures();
                 }
                 
                 await loadMenuItems();
                 
-                // Start trial check interval (every 60 seconds)
                 if (trialCheckInterval) clearInterval(trialCheckInterval);
                 await checkTrialStatus();
                 trialCheckInterval = setInterval(checkTrialStatus, 60000);
@@ -330,11 +363,11 @@ if (menuForm) {
                 localStorage.removeItem('scaneats_token');
                 window.location.href = 'auth.html';
             } else {
-                setTimeout(initDashboard, 2000);
+                setTimeout(initDashboard, 3000);
             }
         } catch (error) {
             console.error('Dashboard init error:', error);
-            setTimeout(initDashboard, 2000);
+            setTimeout(initDashboard, 3000);
         }
     }
 
@@ -516,7 +549,6 @@ if (menuForm) {
         }
     });
 
-    // Initialize dashboard only once
     if (!isInitialized) {
         initDashboard();
     }
@@ -610,3 +642,5 @@ if (menuContent) {
 
     loadPublicMenu();
 }
+
+console.log('✅ ScanEats App loaded successfully!');
