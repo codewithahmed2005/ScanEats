@@ -1,26 +1,25 @@
 // =====================================================================
-// CONFIG: Change this URL when deploying backend
+// CONFIG
 // =====================================================================
-const API_URL = 'https://scaneats-backend.onrender.com'; 
+const API_URL = 'https://scaneats-backend.onrender.com';
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
-// Improved API Fetch with Error Handling
+// =====================================================================
+// API FETCH
+// =====================================================================
 async function apiFetch(endpoint, method = 'GET', body = null) {
     try {
         const headers = { 'Content-Type': 'application/json' };
         const token = getToken();
-        
         if (token && method !== 'OPTIONS') {
             headers['Authorization'] = `Bearer ${token}`;
         }
-        
         const res = await fetch(`${API_URL}${endpoint}`, {
             method,
             headers,
             body: body ? JSON.stringify(body) : null
         });
-
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
@@ -28,7 +27,6 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
             }
             return { error: 'Unauthorized' };
         }
-
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Server Error');
         return data;
@@ -43,59 +41,59 @@ function showToast(msg, type = 'success') {
     if (!toast) return alert(msg);
     toast.textContent = msg;
     toast.className = 'toast show ' + type;
-    toast.style.background = type === 'error' ? '#ef4444' : 
-                            type === 'warning' ? '#f59e0b' : '#1e293b';
+    toast.style.background = type === 'error' ? '#ef4444' :
+        type === 'warning' ? '#f59e0b' : '#1e293b';
     toast.style.color = type === 'warning' ? '#1e1e2a' : '#fff';
     setTimeout(() => toast.classList.remove('show'), 5000);
 }
 
 // =====================================================================
-// MOBILE MENU TOGGLE (FIXED)
+// MOBILE MENU TOGGLE (FIXED - Works on all pages)
 // =====================================================================
 document.addEventListener('DOMContentLoaded', function() {
-    const mobileToggle = document.getElementById('mobileMenuToggle');
-    const navLinks = document.getElementById('navLinks');
-    
-    if (mobileToggle && navLinks) {
-        mobileToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            navLinks.classList.toggle('active');
-            
-            const icon = this.querySelector('i');
-            if (navLinks.classList.contains('active')) {
-                icon.className = 'fas fa-times';
-            } else {
-                icon.className = 'fas fa-bars';
-            }
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (navLinks.classList.contains('active') && 
-                !navLinks.contains(e.target) && 
-                !mobileToggle.contains(e.target)) {
-                navLinks.classList.remove('active');
-                const icon = mobileToggle.querySelector('i');
-                icon.className = 'fas fa-bars';
-            }
-        });
-        
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    navLinks.classList.remove('active');
-                    const icon = mobileToggle.querySelector('i');
+    setTimeout(function() {
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        if (mobileToggle && navLinks) {
+            mobileToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                navLinks.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (navLinks.classList.contains('active')) {
+                    icon.className = 'fas fa-times';
+                } else {
                     icon.className = 'fas fa-bars';
                 }
             });
-        });
-    }
+
+            document.addEventListener('click', function(e) {
+                if (navLinks.classList.contains('active') &&
+                    !navLinks.contains(e.target) &&
+                    !mobileToggle.contains(e.target)) {
+                    navLinks.classList.remove('active');
+                    const icon = mobileToggle.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                }
+            });
+
+            navLinks.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        navLinks.classList.remove('active');
+                        const icon = mobileToggle.querySelector('i');
+                        if (icon) icon.className = 'fas fa-bars';
+                    }
+                });
+            });
+        }
+    }, 100);
 });
 
 // =====================================================================
-// TRIAL CHECK & TIMER LOGIC
+// TRIAL CHECK
 // =====================================================================
-
 let trialCheckInterval = null;
 let alertShown6Days = false;
 let alertShown3Days = false;
@@ -103,13 +101,11 @@ let alertShown3Days = false;
 async function checkTrialStatus() {
     const token = getToken();
     if (!token) return;
-    
     const data = await apiFetch('/api/trial-status');
     if (data.error) {
         console.error('Trial status error:', data.error);
         return;
     }
-    
     const daysLeft = data.remaining_days;
     const isSubscribed = data.is_subscribed;
     const isExpired = data.is_expired;
@@ -117,11 +113,8 @@ async function checkTrialStatus() {
     const daysElement = document.getElementById('trialDays');
     const progressBar = document.getElementById('trialProgressBar');
     const upgradeBtn = document.getElementById('upgradeBtn');
-    
     if (!banner) return;
-    
     banner.style.display = 'block';
-    
     if (isSubscribed) {
         banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
@@ -133,7 +126,6 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'none';
         return;
     }
-    
     if (isExpired || daysLeft <= 0) {
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
@@ -149,15 +141,12 @@ async function checkTrialStatus() {
         disableTrialFeatures();
         return;
     }
-    
     document.getElementById('trialStatusText').textContent = 'Your free trial ends in:';
     daysElement.textContent = daysLeft;
     document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
-    
     const progress = (daysLeft / 14) * 100;
     progressBar.style.width = progress + '%';
     progressBar.style.background = '#22c55e';
-    
     if (daysLeft <= 6 && daysLeft > 3 && !alertShown6Days) {
         alertShown6Days = true;
         banner.style.background = '#fef3c7';
@@ -167,8 +156,7 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'block';
         upgradeBtn.textContent = 'Upgrade Now';
         upgradeBtn.style.background = '#f59e0b';
-    }
-    else if (daysLeft <= 3 && daysLeft > 0 && !alertShown3Days) {
+    } else if (daysLeft <= 3 && daysLeft > 0 && !alertShown3Days) {
         alertShown3Days = true;
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
@@ -177,16 +165,14 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'block';
         upgradeBtn.textContent = 'Subscribe Now';
         upgradeBtn.style.background = '#ef4444';
-    }
-    else if (daysLeft <= 3 && daysLeft > 0) {
+    } else if (daysLeft <= 3 && daysLeft > 0) {
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
         progressBar.style.background = '#ef4444';
         upgradeBtn.style.display = 'block';
         upgradeBtn.textContent = 'Subscribe Now';
         upgradeBtn.style.background = '#ef4444';
-    }
-    else {
+    } else {
         banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
         progressBar.style.background = '#22c55e';
@@ -195,19 +181,19 @@ async function checkTrialStatus() {
 }
 
 function disableTrialFeatures() {
-    document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn').forEach(el => {
+    document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn').forEach(function(el) {
         el.disabled = true;
         el.style.opacity = '0.5';
         el.style.cursor = 'not-allowed';
     });
-    document.querySelectorAll('form input, form select, form textarea').forEach(el => {
+    document.querySelectorAll('form input, form select, form textarea').forEach(function(el) {
         el.disabled = true;
         el.style.opacity = '0.5';
     });
-    document.querySelectorAll('.switch input').forEach(el => {
+    document.querySelectorAll('.switch input').forEach(function(el) {
         el.disabled = true;
     });
-    const submitBtn = document.querySelector('form button[type="submit"]');
+    var submitBtn = document.querySelector('form button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.5';
@@ -223,32 +209,28 @@ function upgradeNow() {
 }
 
 // =====================================================================
-// 1. AUTH LOGIC (auth.html)
+// AUTH LOGIC
 // =====================================================================
-const authForm = document.getElementById('authForm');
+var authForm = document.getElementById('authForm');
 if (authForm) {
-    let isSignup = false;
-
+    var isSignup = false;
     if (getToken()) {
         window.location.href = 'dashboard.html';
     }
-
-    const toggleForm = document.getElementById('toggleForm');
-    const toggleText = document.getElementById('toggleText');
-    const formTitle = document.getElementById('formTitle');
-    const signupFields = document.getElementById('signupFields');
-    const submitBtn = authForm.querySelector('button[type="submit"]');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
+    var toggleForm = document.getElementById('toggleForm');
+    var toggleText = document.getElementById('toggleText');
+    var formTitle = document.getElementById('formTitle');
+    var signupFields = document.getElementById('signupFields');
+    var submitBtn = authForm.querySelector('button[type="submit"]');
+    var loadingOverlay = document.getElementById('loadingOverlay');
+    var togglePassword = document.getElementById('togglePassword');
+    var passwordInput = document.getElementById('password');
     if (togglePassword) {
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        togglePassword.addEventListener('click', function() {
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
         });
     }
-
     toggleForm.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -267,17 +249,14 @@ if (authForm) {
             toggleText.textContent = "Don't have an account?";
         }
     });
-
-    authForm.addEventListener('submit', async (e) => {
+    authForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const errorDiv = document.getElementById('errorMsg');
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        var errorDiv = document.getElementById('errorMsg');
         errorDiv.style.display = 'none';
-        
-        let payload = { email, password };
-        let endpoint = '/api/login';
-
+        var payload = { email: email, password: password };
+        var endpoint = '/api/login';
         if (isSignup) {
             payload.restaurant_name = document.getElementById('restaurant_name').value;
             payload.owner_name = document.getElementById('owner_name').value;
@@ -288,12 +267,9 @@ if (authForm) {
                 return;
             }
         }
-
         loadingOverlay.style.display = 'flex';
-
-        const data = await apiFetch(endpoint, 'POST', payload);
+        var data = await apiFetch(endpoint, 'POST', payload);
         loadingOverlay.style.display = 'none';
-        
         if (data.success) {
             localStorage.setItem('scaneats_token', data.token);
             window.location.href = 'dashboard.html';
@@ -305,24 +281,22 @@ if (authForm) {
 }
 
 // =====================================================================
-// 2. DASHBOARD LOGIC (dashboard.html)
+// DASHBOARD LOGIC
 // =====================================================================
-const menuForm = document.getElementById('menuForm');
+var menuForm = document.getElementById('menuForm');
 if (menuForm) {
-    let currentRestaurant = null;
-    let allItems = [];
-    let isInitialized = false;
-
-    // Profile Settings Logic
-    const profileForm = document.getElementById('profileForm');
+    var currentRestaurant = null;
+    var allItems = [];
+    var isInitialized = false;
+    var profileForm = document.getElementById('profileForm');
     if (profileForm) {
-        profileForm.addEventListener('submit', async (e) => {
+        profileForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const payload = {
+            var payload = {
                 restaurant_name: document.getElementById('settings_resto_name').value,
                 upi_id: document.getElementById('settings_upi_id').value
             };
-            const data = await apiFetch('/api/profile', 'PUT', payload);
+            var data = await apiFetch('/api/profile', 'PUT', payload);
             if (data.success) {
                 showToast('Settings Saved!');
                 document.getElementById('restoName').textContent = payload.restaurant_name;
@@ -332,33 +306,26 @@ if (menuForm) {
 
     async function initDashboard() {
         if (isInitialized) return;
-        
         if (!getToken()) {
             window.location.href = 'auth.html';
             return;
         }
-
         try {
-            const data = await apiFetch('/api/me', 'GET');
-            
+            var data = await apiFetch('/api/me', 'GET');
             if (data && data.id) {
                 isInitialized = true;
                 currentRestaurant = data;
                 document.getElementById('restoName').textContent = data.restaurant_name;
-                document.getElementById('viewMenuLink').href = `menu.html?id=${data.id}`;
+                document.getElementById('viewMenuLink').href = 'menu.html?id=' + data.id;
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
-                
                 if (data.is_trial_expired && !data.is_subscribed) {
                     disableTrialFeatures();
                 }
-                
                 await loadMenuItems();
-                
                 if (trialCheckInterval) clearInterval(trialCheckInterval);
                 await checkTrialStatus();
                 trialCheckInterval = setInterval(checkTrialStatus, 60000);
-                
             } else if (data.error === 'Unauthorized') {
                 localStorage.removeItem('scaneats_token');
                 window.location.href = 'auth.html';
@@ -371,113 +338,100 @@ if (menuForm) {
         }
     }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', function() {
         localStorage.removeItem('scaneats_token');
         if (trialCheckInterval) clearInterval(trialCheckInterval);
         window.location.href = 'auth.html';
     });
 
     async function loadMenuItems() {
-        const list = document.getElementById('menuList');
+        var list = document.getElementById('menuList');
         list.innerHTML = '<p class="loading-text">Loading items...</p>';
-        
         if (!getToken()) {
             list.innerHTML = '<p class="loading-text" style="color:red;">Please login again</p>';
             window.location.href = 'auth.html';
             return;
         }
-        
-        const data = await apiFetch('/api/menu-items');
-        console.log('Menu items response:', data);
-        
+        var data = await apiFetch('/api/menu-items');
         if (!data.error && Array.isArray(data)) {
             allItems = data;
             renderMenu();
         } else {
-            list.innerHTML = `<p class="loading-text" style="color:red;">Failed to load items: ${data.error || 'Unknown error'}</p>`;
+            list.innerHTML = '<p class="loading-text" style="color:red;">Failed to load items: ' + (data.error || 'Unknown error') + '</p>';
         }
     }
 
     function updateStats() {
         document.getElementById('totalItems').textContent = allItems.length;
-        document.getElementById('vegItems').textContent = allItems.filter(i => i.is_veg).length;
-        document.getElementById('nonVegItems').textContent = allItems.filter(i => !i.is_veg).length;
+        document.getElementById('vegItems').textContent = allItems.filter(function(i) { return i.is_veg; }).length;
+        document.getElementById('nonVegItems').textContent = allItems.filter(function(i) { return !i.is_veg; }).length;
     }
 
     function renderMenu() {
-        const list = document.getElementById('menuList');
+        var list = document.getElementById('menuList');
         if (allItems.length === 0) {
             list.innerHTML = '<p class="loading-text">No items added yet.</p>';
             updateStats();
             return;
         }
-        list.innerHTML = allItems.map(item => `
-            <div class="menu-item-row" style="${!item.is_active ? 'opacity: 0.5;' : ''}">
-                <div class="item-info">
-                    <div class="item-name">${item.name} ${item.is_veg ? '🟢' : '🔴'}</div>
-                    <div class="item-desc">${item.description || ''}</div>
-                    <div class="item-category">${item.category} ${!item.is_active ? '(Inactive)' : ''}</div>
-                </div>
-                <div class="item-price">₹${item.price}</div>
-                
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <label class="switch">
-                        <input type="checkbox" onchange="toggleActive(${item.id})" ${item.is_active ? 'checked' : ''}>
-                        <span class="slider"></span>
-                    </label>
-                    
-                    <div class="item-actions">
-                        <button class="btn-sm btn-edit" onclick="editItem(${item.id})">Edit</button>
-                        <button class="btn-sm btn-delete" onclick="deleteItem(${item.id})">Del</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-        
+        list.innerHTML = allItems.map(function(item) {
+            return '<div class="menu-item-row" style="' + (!item.is_active ? 'opacity: 0.5;' : '') + '">' +
+                '<div class="item-info">' +
+                '<div class="item-name">' + item.name + ' ' + (item.is_veg ? '🟢' : '🔴') + '</div>' +
+                '<div class="item-desc">' + (item.description || '') + '</div>' +
+                '<div class="item-category">' + item.category + ' ' + (!item.is_active ? '(Inactive)' : '') + '</div>' +
+                '</div>' +
+                '<div class="item-price">₹' + item.price + '</div>' +
+                '<div style="display:flex; align-items:center; gap:10px;">' +
+                '<label class="switch">' +
+                '<input type="checkbox" onchange="toggleActive(' + item.id + ')" ' + (item.is_active ? 'checked' : '') + '>' +
+                '<span class="slider"></span>' +
+                '</label>' +
+                '<div class="item-actions">' +
+                '<button class="btn-sm btn-edit" onclick="editItem(' + item.id + ')">Edit</button>' +
+                '<button class="btn-sm btn-delete" onclick="deleteItem(' + item.id + ')">Del</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }).join('');
         updateStats();
     }
 
-    window.toggleActive = async (id) => {
+    window.toggleActive = async function(id) {
         if (!getToken()) {
             showToast('Please login again', 'error');
             window.location.href = 'auth.html';
             return;
         }
-        
-        const data = await apiFetch(`/api/menu/toggle/${id}`, 'PUT');
+        var data = await apiFetch('/api/menu/toggle/' + id, 'PUT');
         if (data.success) {
             showToast('Item status updated!');
-            const item = allItems.find(i => i.id === id);
+            var item = allItems.find(function(i) { return i.id === id; });
             if (item) item.is_active = data.is_active;
             renderMenu();
         } else {
             showToast('Failed to update status', 'error');
         }
-    }
+    };
 
-    menuForm.addEventListener('submit', async (e) => {
+    menuForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
         if (!getToken()) {
             showToast('Please login again', 'error');
             window.location.href = 'auth.html';
             return;
         }
-        
-        const id = document.getElementById('itemId').value;
-        const payload = {
+        var id = document.getElementById('itemId').value;
+        var payload = {
             name: document.getElementById('name').value,
             description: document.getElementById('description').value,
             price: document.getElementById('price').value,
             category: document.getElementById('category').value,
             is_veg: document.getElementById('is_veg').value === 'true'
         };
-
-        const method = id ? 'PUT' : 'POST';
-        const endpoint = id ? `/api/menu-items/${id}` : '/api/menu-items';
-        
-        const data = await apiFetch(endpoint, method, payload);
-
+        var method = id ? 'PUT' : 'POST';
+        var endpoint = id ? '/api/menu-items/' + id : '/api/menu-items';
+        var data = await apiFetch(endpoint, method, payload);
         if (data.success) {
             showToast(id ? 'Item updated!' : 'Item added!');
             resetForm();
@@ -487,8 +441,8 @@ if (menuForm) {
         }
     });
 
-    window.editItem = (id) => {
-        const item = allItems.find(i => i.id === id);
+    window.editItem = function(id) {
+        var item = allItems.find(function(i) { return i.id === id; });
         if (!item) return;
         document.getElementById('itemId').value = item.id;
         document.getElementById('name').value = item.name;
@@ -502,16 +456,14 @@ if (menuForm) {
         window.scrollTo(0, 0);
     };
 
-    window.deleteItem = async (id) => {
+    window.deleteItem = async function(id) {
         if (!confirm('Delete this item?')) return;
-        
         if (!getToken()) {
             showToast('Please login again', 'error');
             window.location.href = 'auth.html';
             return;
         }
-        
-        const data = await apiFetch(`/api/menu-items/${id}`, 'DELETE');
+        var data = await apiFetch('/api/menu-items/' + id, 'DELETE');
         if (data.success) {
             showToast('Item deleted!');
             await loadMenuItems();
@@ -529,19 +481,18 @@ if (menuForm) {
     }
     document.getElementById('cancelBtn').addEventListener('click', resetForm);
 
-    document.getElementById('generateQrBtn').addEventListener('click', async () => {
+    document.getElementById('generateQrBtn').addEventListener('click', async function() {
         if (!getToken()) {
             showToast('Please login again', 'error');
             window.location.href = 'auth.html';
             return;
         }
-        
-        const data = await apiFetch('/api/generate-qr', 'POST');
+        var data = await apiFetch('/api/generate-qr', 'POST');
         if (data.success) {
-            document.getElementById('qrDisplay').innerHTML = `<img src="${data.qr_base64}" alt="QR Code">`;
-            const link = document.getElementById('downloadQrLink');
+            document.getElementById('qrDisplay').innerHTML = '<img src="' + data.qr_base64 + '" alt="QR Code">';
+            var link = document.getElementById('downloadQrLink');
             link.href = data.qr_base64;
-            link.download = `scaneats_menu_${currentRestaurant.id}.png`;
+            link.download = 'scaneats_menu_' + currentRestaurant.id + '.png';
             link.style.display = 'inline-block';
             showToast('QR Generated!');
         } else {
@@ -555,16 +506,15 @@ if (menuForm) {
 }
 
 // =====================================================================
-// 3. CUSTOMER MENU LOGIC (menu.html)
+// PUBLIC MENU LOGIC
 // =====================================================================
-const menuContent = document.getElementById('menuContent');
+var menuContent = document.getElementById('menuContent');
 if (menuContent) {
-    const params = new URLSearchParams(window.location.search);
-    const restaurantId = params.get('id');
-
-    let allMenuItems = [];
-    let isVegOnly = false;
-    let searchTerm = '';
+    var params = new URLSearchParams(window.location.search);
+    var restaurantId = params.get('id');
+    var allMenuItems = [];
+    var isVegOnly = false;
+    var searchTerm = '';
 
     async function loadPublicMenu() {
         if (!restaurantId) {
@@ -572,27 +522,23 @@ if (menuContent) {
             document.getElementById('loading').style.display = 'none';
             return;
         }
-
-        const data = await apiFetch(`/api/menu/${restaurantId}`);
+        var data = await apiFetch('/api/menu/' + restaurantId);
         if (data.error) {
-            menuContent.innerHTML = `<h2>${data.error || 'Menu not found'}</h2>`;
+            menuContent.innerHTML = '<h2>' + (data.error || 'Menu not found') + '</h2>';
             document.getElementById('loading').style.display = 'none';
             return;
         }
-
         document.getElementById('restaurantName').textContent = data.restaurant_name;
-        document.title = `${data.restaurant_name} - Menu`;
+        document.title = data.restaurant_name + ' - Menu';
         allMenuItems = data.items || [];
-
-        document.getElementById('searchInput').addEventListener('input', (e) => {
+        document.getElementById('searchInput').addEventListener('input', function(e) {
             searchTerm = e.target.value.toLowerCase();
             renderFilteredMenu();
         });
-        document.getElementById('vegOnlyToggle').addEventListener('change', (e) => {
+        document.getElementById('vegOnlyToggle').addEventListener('change', function(e) {
             isVegOnly = e.target.checked;
             renderFilteredMenu();
         });
-
         renderFilteredMenu();
         document.getElementById('loading').style.display = 'none';
     }
@@ -602,45 +548,41 @@ if (menuContent) {
             menuContent.innerHTML = '<p style="text-align:center; color:#64748b;">No menu items available.</p>';
             return;
         }
-
-        let filteredItems = allMenuItems.filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
-                                 (item.description && item.description.toLowerCase().includes(searchTerm));
-            const matchesVeg = !isVegOnly || item.is_veg;
+        var filteredItems = allMenuItems.filter(function(item) {
+            var matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
+                (item.description && item.description.toLowerCase().includes(searchTerm));
+            var matchesVeg = !isVegOnly || item.is_veg;
             return matchesSearch && matchesVeg;
         });
-
         if (filteredItems.length === 0) {
             menuContent.innerHTML = '<p style="text-align:center; color:#64748b; margin-top: 40px;">No items match your search.</p>';
             return;
         }
-
-        const grouped = {};
-        filteredItems.forEach(item => {
+        var grouped = {};
+        filteredItems.forEach(function(item) {
             if (!grouped[item.category]) grouped[item.category] = [];
             grouped[item.category].push(item);
         });
-
-        menuContent.innerHTML = Object.entries(grouped).map(([category, items]) => `
-            <div class="menu-category">
-                <h2 class="category-title">${category}</h2>
-                ${items.map(item => `
-                    <div class="menu-item-card">
-                        <div style="display:flex; gap:10px;">
-                            <div class="veg-badge ${item.is_veg ? 'veg' : 'non-veg'}"></div>
-                            <div>
-                                <div style="font-weight:600; font-size:16px;">${item.name}</div>
-                                <div style="font-size:13px; color:#64748b;">${item.description || ''}</div>
-                            </div>
-                        </div>
-                        <div style="font-weight:700; color:#4f46e5;">₹${item.price}</div>
-                    </div>
-                `).join('')}
-            </div>
-        `).join('');
+        menuContent.innerHTML = Object.entries(grouped).map(function(_ref) {
+            var category = _ref[0];
+            var items = _ref[1];
+            return '<div class="menu-category">' +
+                '<h2 class="category-title">' + category + '</h2>' +
+                items.map(function(item) {
+                    return '<div class="menu-item-card">' +
+                        '<div style="display:flex; gap:10px;">' +
+                        '<div class="veg-badge ' + (item.is_veg ? 'veg' : 'non-veg') + '"></div>' +
+                        '<div>' +
+                        '<div style="font-weight:600; font-size:16px;">' + item.name + '</div>' +
+                        '<div style="font-size:13px; color:#64748b;">' + (item.description || '') + '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div style="font-weight:700; color:#4f46e5;">₹' + item.price + '</div>' +
+                        '</div>';
+                }).join('') +
+                '</div>';
+        }).join('');
     }
 
     loadPublicMenu();
 }
-
-console.log('✅ ScanEats App loaded successfully!');
