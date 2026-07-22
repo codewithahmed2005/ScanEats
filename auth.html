@@ -23,10 +23,10 @@
             
             <div id="errorMsg" class="error-msg"></div>
 
-            <!-- FIX: novalidate added -->
-            <form id="authForm" novalidate>
+            <!-- FIX: novalidate + onsubmit handler -->
+            <form id="authForm" novalidate onsubmit="return false;">
                 <div id="signupFields" style="display:none;">
-                    <!-- FIX: required removed from hidden fields -->
+                    <!-- FIX: removed required attribute -->
                     <input type="text" id="restaurant_name" placeholder="Restaurant Name">
                     <input type="text" id="owner_name" placeholder="Owner Name">
                 </div>
