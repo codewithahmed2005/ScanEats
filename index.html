@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ScanEats · Digital Menu SaaS</title>
+  <title>MenuQR · Digital Menu SaaS</title>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css">
@@ -62,11 +62,30 @@
       align-items: center;
       gap: 2rem;
       list-style: none;
+      transition: all 0.3s ease;
     }
 
     @media (max-width: 768px) {
       .nav-links {
         display: none;
+        flex-direction: column;
+        width: 100%;
+        padding: 1rem 0;
+        gap: 1rem;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        margin-top: 0.5rem;
+        border: 1px solid #ede8e2;
+      }
+      .nav-links.active {
+        display: flex !important;
+      }
+      .nav-links a {
+        padding: 0.5rem 1rem;
+        width: 100%;
+        text-align: center;
       }
     }
 
@@ -95,12 +114,19 @@
       color: #fff !important;
     }
 
-    /* Mobile menu toggle */
     .mobile-menu-toggle {
       display: none;
       font-size: 1.5rem;
       cursor: pointer;
       color: #1e1e2a;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      transition: 0.2s;
+    }
+
+    .mobile-menu-toggle:hover {
+      color: #c17b3a;
     }
 
     @media (max-width: 768px) {
@@ -689,17 +715,17 @@
 <!-- ========================================== -->
 <nav class="navbar">
   <a href="#" class="logo">
-    <i class="fas fa-qrcode"></i> ScanEats
+    <i class="fas fa-qrcode"></i> MenuQR
   </a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="navLinks">
     <li><a href="#features">Features</a></li>
     <li><a href="#how-it-works">How It Works</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="auth.html" class="nav-cta">Login</a></li>
   </ul>
-  <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+  <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
     <i class="fas fa-bars"></i>
-  </div>
+  </button>
 </nav>
 
 <!-- ========================================== -->
@@ -903,7 +929,7 @@
 <!-- ========================================== -->
 <section class="cta-section" id="cta">
   <h2>Ready to Go Digital?</h2>
-  <p>Join 5,000+ restaurants already using ScanEats</p>
+  <p>Join 5,000+ restaurants already using MenuQR</p>
   <a href="auth.html" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;">
     <i class="fas fa-rocket"></i> Start Free Trial
   </a>
@@ -918,7 +944,7 @@
 <footer class="footer">
   <div class="footer-container">
     <div>
-      <h4>ScanEats</h4>
+      <h4>MenuQR</h4>
       <p style="font-size: 0.85rem; margin-top: 0.5rem;">
         Digital menu solution for modern restaurants.
       </p>
@@ -948,7 +974,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    &copy; 2026 ScanEats All rights reserved.
+    &copy; 2026 MenuQR. All rights reserved.
   </div>
 </footer>
 
@@ -956,20 +982,48 @@
 <!-- ===== JAVASCRIPT ===== -->
 <!-- ========================================== -->
 <script>
-  // Mobile menu toggle
-  function toggleMobileMenu() {
-    const navLinks = document.querySelector('.nav-links');
-    if (navLinks.style.display === 'flex') {
-      navLinks.style.display = 'none';
-    } else {
-      navLinks.style.display = 'flex';
-      navLinks.style.flexDirection = 'column';
-      navLinks.style.width = '100%';
-      navLinks.style.padding = '1rem 0';
-      navLinks.style.gap = '1rem';
-      navLinks.style.alignItems = 'center';
+  // =====================================================
+  // MOBILE MENU TOGGLE
+  // =====================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const navLinks = document.getElementById('navLinks');
+    
+    if (mobileToggle && navLinks) {
+      mobileToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navLinks.classList.toggle('active');
+        
+        const icon = this.querySelector('i');
+        if (navLinks.classList.contains('active')) {
+          icon.className = 'fas fa-times';
+        } else {
+          icon.className = 'fas fa-bars';
+        }
+      });
+      
+      document.addEventListener('click', function(e) {
+        if (navLinks.classList.contains('active') && 
+            !navLinks.contains(e.target) && 
+            !mobileToggle.contains(e.target)) {
+          navLinks.classList.remove('active');
+          const icon = mobileToggle.querySelector('i');
+          icon.className = 'fas fa-bars';
+        }
+      });
+      
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 768) {
+            navLinks.classList.remove('active');
+            const icon = mobileToggle.querySelector('i');
+            icon.className = 'fas fa-bars';
+          }
+        });
+      });
     }
-  }
+  });
 
   // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -985,18 +1039,7 @@
     });
   });
 
-  // Close mobile menu on link click
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-      const navLinks = document.querySelector('.nav-links');
-      if (window.innerWidth <= 768) {
-        navLinks.style.display = 'none';
-      }
-    });
-  });
-
-  console.log('🚀 ScanEats Landing Page loaded!');
+  console.log('🚀 MenuQR Landing Page loaded!');
 </script>
-
 </body>
 </html>
