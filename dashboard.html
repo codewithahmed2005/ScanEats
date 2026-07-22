@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard-body">
-    <!-- ===== TRIAL BANNER ===== -->
     <div id="trialBanner" class="trial-banner" style="display:none;">
         <div class="trial-content">
             <span class="trial-icon">⏳</span>
@@ -24,7 +23,6 @@
         </div>
     </div>
 
-    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <a href="#" class="logo">
             <i class="fas fa-qrcode"></i> ScanEats
@@ -39,30 +37,15 @@
         </button>
     </nav>
 
-    <!-- ===== DASHBOARD CONTENT ===== -->
     <div class="dashboard-container">
-        <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <h3 id="totalItems">0</h3>
-                <p>Total Items</p>
-            </div>
-            <div class="stat-card veg">
-                <h3 id="vegItems">0</h3>
-                <p>Veg Items</p>
-            </div>
-            <div class="stat-card non-veg">
-                <h3 id="nonVegItems">0</h3>
-                <p>Non-Veg Items</p>
-            </div>
+            <div class="stat-card"><h3 id="totalItems">0</h3><p>Total Items</p></div>
+            <div class="stat-card veg"><h3 id="vegItems">0</h3><p>Veg Items</p></div>
+            <div class="stat-card non-veg"><h3 id="nonVegItems">0</h3><p>Non-Veg Items</p></div>
         </div>
 
-        <!-- Add/Edit Menu Form -->
         <div class="card">
-            <div class="card-header">
-                <h3 id="formTitle">➕ Add Menu Item</h3>
-                <p>Add new dishes to your digital menu</p>
-            </div>
+            <div class="card-header"><h3 id="formTitle">➕ Add Menu Item</h3><p>Add new dishes to your digital menu</p></div>
             <form id="menuForm">
                 <input type="hidden" id="itemId" value="">
                 <input type="text" id="name" placeholder="Item Name" required>
@@ -92,42 +75,24 @@
             </form>
         </div>
 
-        <!-- Menu List -->
         <div class="card">
-            <div class="card-header">
-                <h3>📋 Your Menu</h3>
-                <p>Manage all your dishes</p>
-            </div>
-            <div id="menuList">
-                <p class="loading-text">Loading items...</p>
-            </div>
+            <div class="card-header"><h3>📋 Your Menu</h3><p>Manage all your dishes</p></div>
+            <div id="menuList"><p class="loading-text">Loading items...</p></div>
         </div>
 
-        <!-- QR Generator -->
         <div class="card">
-            <div class="card-header">
-                <h3>📱 QR Code</h3>
-                <p>Generate QR code for your menu</p>
-            </div>
+            <div class="card-header"><h3>📱 QR Code</h3><p>Generate QR code for your menu</p></div>
             <div class="qr-body">
-                <div class="qr-placeholder" id="qrDisplay">
-                    <span>No QR generated yet</span>
-                </div>
+                <div class="qr-placeholder" id="qrDisplay"><span>No QR generated yet</span></div>
                 <div class="qr-actions">
                     <button id="generateQrBtn" class="btn-primary">Generate QR</button>
-                    <a id="downloadQrLink" download style="display:none;" class="btn-secondary">
-                        <i class="fas fa-download"></i> Download
-                    </a>
+                    <a id="downloadQrLink" download style="display:none;" class="btn-secondary"><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
         </div>
 
-        <!-- Profile Settings -->
         <div class="card">
-            <div class="card-header">
-                <h3>⚙️ Settings</h3>
-                <p>Update your restaurant profile</p>
-            </div>
+            <div class="card-header"><h3>⚙️ Settings</h3><p>Update your restaurant profile</p></div>
             <form id="profileForm">
                 <input type="text" id="settings_resto_name" placeholder="Restaurant Name" required>
                 <input type="text" id="settings_upi_id" placeholder="UPI ID (for payments)">
@@ -136,9 +101,7 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div id="toast" class="toast"></div>
-
     <script src="./app.js"></script>
 </body>
 </html>
