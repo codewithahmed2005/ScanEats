@@ -137,6 +137,7 @@ body {
     margin: 0 auto;
     flex-wrap: wrap;
     gap: 1rem;
+    position: relative;
 }
 
 @media (max-width: 768px) {
@@ -181,6 +182,10 @@ body {
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         margin-top: 0.5rem;
         border: 1px solid var(--border-color);
+        position: absolute;
+        top: 70px;
+        left: 0;
+        z-index: 999;
     }
     .nav-links.active {
         display: flex !important;
@@ -189,6 +194,11 @@ body {
         padding: 0.5rem 1rem;
         width: 100%;
         text-align: center;
+    }
+    .nav-links .nav-cta {
+        width: auto;
+        display: inline-block;
+        margin: 0 auto;
     }
 }
 
@@ -226,6 +236,7 @@ body {
     border: none;
     padding: 0.5rem;
     transition: 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-menu-toggle:hover {
@@ -388,7 +399,6 @@ body {
     }
 }
 
-/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -435,7 +445,6 @@ body {
     color: #ef4444;
 }
 
-/* Cards */
 .card {
     background: #ffffff;
     padding: 1.5rem 2rem;
@@ -465,7 +474,6 @@ body {
     color: var(--text-light);
 }
 
-/* Forms */
 form input,
 form textarea,
 form select {
@@ -515,7 +523,6 @@ form textarea {
     flex-wrap: wrap;
 }
 
-/* Menu List */
 .menu-item-row {
     display: flex;
     justify-content: space-between;
@@ -579,7 +586,6 @@ form textarea {
     gap: 0.3rem;
 }
 
-/* Toggle Switch */
 .switch {
     position: relative;
     display: inline-block;
@@ -626,7 +632,6 @@ input:checked+.slider:before {
     transform: translateX(18px);
 }
 
-/* QR Section */
 .qr-body {
     display: flex;
     gap: 2rem;
@@ -660,7 +665,6 @@ input:checked+.slider:before {
     gap: 0.5rem;
 }
 
-/* Loading Text */
 .loading-text {
     color: var(--text-light);
     text-align: center;
@@ -960,7 +964,6 @@ input:checked+.slider:before {
     }
 }
 
-/* Loading State */
 .loading-state {
     display: flex;
     justify-content: center;
@@ -1057,11 +1060,9 @@ input:checked+.slider:before {
     .auth-card {
         padding: 24px;
     }
-
     .menu-header h1 {
         font-size: 1.8rem;
     }
-
     .stat-card h3 {
         font-size: 1.5rem;
     }
