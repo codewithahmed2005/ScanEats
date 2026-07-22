@@ -243,16 +243,16 @@ if (authForm) {
         let payload = { email, password };
         let endpoint = '/api/login';
 
-        if (isSignup) {
-            payload.restaurant_name = document.getElementById('restaurant_name').value;
-            payload.owner_name = document.getElementById('owner_name').value;
-            endpoint = '/api/signup';
-            if (!payload.restaurant_name || !payload.owner_name) {
-                errorDiv.textContent = 'Please fill all fields';
-                errorDiv.style.display = 'block';
-                return;
-            }
+    if (isSignup) {
+        payload.restaurant_name = document.getElementById('restaurant_name').value;
+        payload.owner_name = document.getElementById('owner_name').value;
+        endpoint = '/api/signup';
+        if (!payload.restaurant_name || !payload.owner_name) {
+            errorDiv.textContent = 'Please fill all fields';
+            errorDiv.style.display = 'block';
+            return;
         }
+    }
 
         loadingOverlay.style.display = 'flex';
 
