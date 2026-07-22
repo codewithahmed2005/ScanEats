@@ -233,15 +233,15 @@ if (authForm) {
         }
     });
 
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const errorDiv = document.getElementById('errorMsg');
-        errorDiv.style.display = 'none';
-        
-        let payload = { email, password };
-        let endpoint = '/api/login';
+authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();  // ← Yeh important hai!
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('errorMsg');
+    errorDiv.style.display = 'none';
+    
+    let payload = { email, password };
+    let endpoint = '/api/login';
 
     if (isSignup) {
         payload.restaurant_name = document.getElementById('restaurant_name').value;
@@ -254,19 +254,19 @@ if (authForm) {
         }
     }
 
-        loadingOverlay.style.display = 'flex';
+    loadingOverlay.style.display = 'flex';
 
-        const data = await apiFetch(endpoint, 'POST', payload);
-        loadingOverlay.style.display = 'none';
-        
-        if (data.success) {
-            localStorage.setItem('scaneats_token', data.token);
-            window.location.href = 'dashboard.html';
-        } else {
-            errorDiv.textContent = data.error || 'Something went wrong';
-            errorDiv.style.display = 'block';
-        }
-    });
+    const data = await apiFetch(endpoint, 'POST', payload);
+    loadingOverlay.style.display = 'none';
+    
+    if (data.success) {
+        localStorage.setItem('scaneats_token', data.token);
+        window.location.href = 'dashboard.html';
+    } else {
+        errorDiv.textContent = data.error || 'Something went wrong';
+        errorDiv.style.display = 'block';
+    }
+});
 }
 
 // =====================================================================
