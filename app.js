@@ -209,6 +209,32 @@ function upgradeNow() {
 }
 
 // =====================================================================
+// QR CODE FUNCTIONS (HIGH RESOLUTION + PRINT)
+// =====================================================================
+
+function printQR() {
+    var qrImage = document.querySelector('#qrDisplay img');
+    if (!qrImage) {
+        showToast('Please generate QR first', 'error');
+        return;
+    }
+    
+    var win = window.open('', '_blank');
+    win.document.write('<html><head><title>Print QR Code</title>');
+    win.document.write('<style>');
+    win.document.write('body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:#fff;}');
+    win.document.write('img{max-width:1000px;max-height:1000px;width:auto;height:auto;}');
+    win.document.write('@media print{body{margin:0;} img{width:1000px;height:1000px;}}');
+    win.document.write('</style>');
+    win.document.write('</head><body>');
+    win.document.write('<img src="' + qrImage.src + '" alt="QR Code">');
+    win.document.write('</body></html>');
+    win.document.close();
+    win.focus();
+    win.print();
+}
+
+// =====================================================================
 // AUTH LOGIC
 // =====================================================================
 var authForm = document.getElementById('authForm');
@@ -481,20 +507,34 @@ if (menuForm) {
     }
     document.getElementById('cancelBtn').addEventListener('click', resetForm);
 
+    // =====================================================================
+    // QR CODE GENERATION (HIGH RESOLUTION)
+    // =====================================================================
     document.getElementById('generateQrBtn').addEventListener('click', async function() {
         if (!getToken()) {
             showToast('Please login again', 'error');
             window.location.href = 'auth.html';
             return;
         }
+        
+        showToast('🔲 Generating high-resolution QR...', 'warning');
+        
         var data = await apiFetch('/api/generate-qr', 'POST');
         if (data.success) {
-            document.getElementById('qrDisplay').innerHTML = '<img src="' + data.qr_base64 + '" alt="QR Code">';
+            // Display QR
+            document.getElementById('qrDisplay').innerHTML = 
+                '<img src="' + data.qr_base64 + '" alt="QR Code" style="width:100%; height:100%; object-fit:contain;">';
+            
+            // Download PNG
             var link = document.getElementById('downloadQrLink');
             link.href = data.qr_base64;
             link.download = 'scaneats_menu_' + currentRestaurant.id + '.png';
             link.style.display = 'inline-block';
-            showToast('QR Generated!');
+            
+            // Print button
+            document.getElementById('printQrBtn').style.display = 'inline-block';
+            
+            showToast('✅ High-res QR generated! (1000x1000px, 300 DPI)', 'success');
         } else {
             showToast(data.error || 'Failed to generate QR', 'error');
         }
@@ -586,3 +626,5 @@ if (menuContent) {
 
     loadPublicMenu();
 }
+
+console.log('✅ ScanEats App loaded successfully!');
