@@ -80,16 +80,34 @@
             <div id="menuList"><p class="loading-text">Loading items...</p></div>
         </div>
 
-        <div class="card">
-            <div class="card-header"><h3>📱 QR Code</h3><p>Generate QR code for your menu</p></div>
-            <div class="qr-body">
-                <div class="qr-placeholder" id="qrDisplay"><span>No QR generated yet</span></div>
-                <div class="qr-actions">
-                    <button id="generateQrBtn" class="btn-primary">Generate QR</button>
-                    <a id="downloadQrLink" download style="display:none;" class="btn-secondary"><i class="fas fa-download"></i> Download</a>
-                </div>
-            </div>
+<!-- QR Generator -->
+<div class="card">
+    <div class="card-header">
+        <h3>📱 QR Code</h3>
+        <p>Generate high-resolution QR for your menu</p>
+    </div>
+    <div class="qr-body">
+        <div class="qr-placeholder" id="qrDisplay">
+            <span>No QR generated yet</span>
         </div>
+        <div class="qr-actions">
+            <button id="generateQrBtn" class="btn-primary">
+                <i class="fas fa-qrcode"></i> Generate QR
+            </button>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <a id="downloadQrLink" download style="display:none;" class="btn-secondary">
+                    <i class="fas fa-download"></i> Download PNG
+                </a>
+                <button id="printQrBtn" style="display:none;" class="btn-secondary" onclick="printQR()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-light); margin-top:0.5rem;">
+                ⚡ 1000x1000 px · 300 DPI · Print Ready
+            </p>
+        </div>
+    </div>
+</div>
 
         <div class="card">
             <div class="card-header"><h3>⚙️ Settings</h3><p>Update your restaurant profile</p></div>
