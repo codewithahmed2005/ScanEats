@@ -2,6 +2,7 @@
 // CONFIG
 // =====================================================================
 const API_URL = 'https://scaneats-backend.onrender.com';
+const FRONTEND_URL = 'https://codewithahmed2005.github.io/ScanEats';
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
@@ -45,6 +46,41 @@ function showToast(msg, type = 'success') {
         type === 'warning' ? '#f59e0b' : '#1e293b';
     toast.style.color = type === 'warning' ? '#1e1e2a' : '#fff';
     setTimeout(() => toast.classList.remove('show'), 5000);
+}
+
+// =====================================================================
+// GOOGLE OAUTH HANDLER (NEW)
+// =====================================================================
+
+// Check for Google OAuth callback on auth page
+if (window.location.pathname.includes('auth.html')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const googleAuth = urlParams.get('google_auth');
+    const error = urlParams.get('error');
+    
+    if (error) {
+        console.log('Google Auth Error:', error);
+        // Show error after page loads
+        setTimeout(function() {
+            const errorDiv = document.getElementById('errorMsg');
+            if (errorDiv) {
+                errorDiv.textContent = 'Google login failed. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }, 500);
+        // Remove error from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    if (token && googleAuth === 'success') {
+        // Save token and redirect to dashboard
+        localStorage.setItem('scaneats_token', token);
+        showToast('✅ Google login successful!', 'success');
+        setTimeout(function() {
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    }
 }
 
 // =====================================================================
@@ -235,7 +271,7 @@ function printQR() {
 }
 
 // =====================================================================
-// AUTH LOGIC
+// AUTH LOGIC (UPDATED)
 // =====================================================================
 var authForm = document.getElementById('authForm');
 if (authForm) {
