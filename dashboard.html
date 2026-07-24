@@ -80,34 +80,99 @@
             <div id="menuList"><p class="loading-text">Loading items...</p></div>
         </div>
 
-<!-- QR Generator -->
-<div class="card">
-    <div class="card-header">
-        <h3>📱 QR Code</h3>
-        <p>Generate high-resolution QR for your menu</p>
-    </div>
-    <div class="qr-body">
-        <div class="qr-placeholder" id="qrDisplay">
-            <span>No QR generated yet</span>
-        </div>
-        <div class="qr-actions">
-            <button id="generateQrBtn" class="btn-primary">
-                <i class="fas fa-qrcode"></i> Generate QR
-            </button>
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                <a id="downloadQrLink" download style="display:none;" class="btn-secondary">
-                    <i class="fas fa-download"></i> Download PNG
-                </a>
-                <button id="printQrBtn" style="display:none;" class="btn-secondary" onclick="printQR()">
-                    <i class="fas fa-print"></i> Print
-                </button>
+        <!-- ===== QR Generator ===== -->
+        <div class="card">
+            <div class="card-header">
+                <h3>📱 QR Code</h3>
+                <p>Generate high-resolution QR for your menu</p>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-light); margin-top:0.5rem;">
-                ⚡ 1000x1000 px · 300 DPI · Print Ready
+            <div class="qr-body">
+                <div class="qr-placeholder" id="qrDisplay">
+                    <span>No QR generated yet</span>
+                </div>
+                <div class="qr-actions">
+                    <button id="generateQrBtn" class="btn-primary">
+                        <i class="fas fa-qrcode"></i> Generate QR
+                    </button>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <a id="downloadQrLink" download style="display:none;" class="btn-secondary">
+                            <i class="fas fa-download"></i> Download PNG
+                        </a>
+                        <button id="printQrBtn" style="display:none;" class="btn-secondary" onclick="printQR()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                    <p style="font-size:0.75rem; color:var(--text-light); margin-top:0.5rem;">
+                        ⚡ 1000x1000 px · 300 DPI · Print Ready
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SUBSCRIPTION SECTION (UPDATED) ===== -->
+        <div class="card" id="subscriptionSection">
+            <div class="card-header">
+                <h3>💳 Upgrade Your Plan</h3>
+                <p>Choose a plan to continue enjoying unlimited features</p>
+            </div>
+            <div class="subscription-grid">
+                <!-- Plan 1: 3 Months -->
+                <div class="sub-plan-card">
+                    <div class="sub-plan-name">3 Months</div>
+                    <div class="sub-plan-price">₹499</div>
+                    <div class="sub-plan-duration">Just ₹166/month</div>
+                    <ul class="sub-plan-features">
+                        <li>✅ Unlimited Menu Items &amp; Categories</li>
+                        <li>✅ Unlimited QR Code Scans</li>
+                        <li>✅ Real-time Price &amp; Stock Updates</li>
+                        <li>✅ High-Resolution Printable QR Download</li>
+                        <li>✅ Instant WhatsApp/Phone Support</li>
+                    </ul>
+                    <button onclick="startPayment('3_months')" class="btn-primary" style="width:100%; justify-content:center;">
+                        Subscribe Now
+                    </button>
+                </div>
+
+                <!-- Plan 2: 6 Months (Most Popular) -->
+                <div class="sub-plan-card popular">
+                    <div class="sub-plan-badge">🔥 Most Popular</div>
+                    <div class="sub-plan-name">6 Months</div>
+                    <div class="sub-plan-price">₹799</div>
+                    <div class="sub-plan-duration">Just ₹133/month</div>
+                    <ul class="sub-plan-features">
+                        <li>✅ Unlimited Menu Items &amp; Categories</li>
+                        <li>✅ Unlimited QR Code Scans</li>
+                        <li>✅ Real-time Price &amp; Stock Updates</li>
+                        <li>✅ High-Resolution Printable QR Download</li>
+                        <li>✅ Instant WhatsApp/Phone Support</li>
+                    </ul>
+                    <button onclick="startPayment('6_months')" class="btn-primary" style="width:100%; justify-content:center; background:#c17b3a;">
+                        Subscribe Now
+                    </button>
+                </div>
+
+                <!-- Plan 3: 12 Months -->
+                <div class="sub-plan-card best-value">
+                    <div class="sub-plan-badge" style="background:#22c55e;">💎 Best Value — Only ₹99/mo</div>
+                    <div class="sub-plan-name">12 Months</div>
+                    <div class="sub-plan-price">₹1,199</div>
+                    <div class="sub-plan-duration">Save 50% — Just ₹99/month</div>
+                    <ul class="sub-plan-features">
+                        <li>✅ Unlimited Menu Items &amp; Categories</li>
+                        <li>✅ Unlimited QR Code Scans</li>
+                        <li>✅ Real-time Price &amp; Stock Updates</li>
+                        <li>✅ High-Resolution Printable QR Download</li>
+                        <li>✅ Instant WhatsApp/Phone Support</li>
+                    </ul>
+                    <button onclick="startPayment('12_months')" class="btn-primary" style="width:100%; justify-content:center; background:#22c55e;">
+                        Subscribe Now
+                    </button>
+                </div>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-light); margin-top:1rem; text-align:center;">
+                🔒 Secure payment via Razorpay · All plans include 14-day free trial
             </p>
         </div>
-    </div>
-</div>
 
         <div class="card">
             <div class="card-header"><h3>⚙️ Settings</h3><p>Update your restaurant profile</p></div>
