@@ -6,6 +6,57 @@
     <title>ScanEats - Login / Signup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Google Button Styles */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .divider hr {
+            flex: 1;
+            border: none;
+            border-top: 1px solid #ede8e2;
+        }
+        .divider span {
+            color: #5a5a6a;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #ffffff;
+            color: #1e1e2a;
+            padding: 0.8rem;
+            border-radius: 40px;
+            border: 1px solid #ede8e2;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-google:hover {
+            background: #f5f5f5;
+            border-color: #c17b3a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
 </head>
 <body class="auth-body">
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
@@ -19,6 +70,8 @@
             </a>
             <h2 id="formTitle">Welcome Back</h2>
             <div id="errorMsg" class="error-msg"></div>
+
+            <!-- ===== EMAIL/PASSWORD FORM ===== -->
             <form id="authForm" novalidate>
                 <div id="signupFields" style="display:none;">
                     <input type="text" id="restaurant_name" placeholder="Restaurant Name">
@@ -31,13 +84,33 @@
                 </div>
                 <button type="submit" class="btn-primary" id="submitBtn">Login</button>
             </form>
+
+            <!-- ===== DIVIDER ===== -->
+            <div class="divider">
+                <hr>
+                <span>or continue with</span>
+                <hr>
+            </div>
+
+            <!-- ===== GOOGLE LOGIN BUTTON ===== -->
+            <a href="https://scaneats-backend.onrender.com/api/auth/google" 
+               class="btn-google" id="googleBtn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                     alt="Google">
+                Continue with Google
+            </a>
+
+            <!-- ===== TOGGLE & BACK LINKS ===== -->
             <p class="toggle-text">
                 <span id="toggleText">Don't have an account?</span>
                 <a href="#" id="toggleForm">Sign up here</a>
             </p>
-            <a href="index.html" class="auth-back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <a href="index.html" class="auth-back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
         </div>
     </div>
+
     <script src="./app.js"></script>
 </body>
 </html>
