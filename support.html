@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support · MenuQR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* =====================================================
+           SUPPORT PAGE STYLES
+        ===================================================== */
+        .support-page {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem;
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .support-header {
+            text-align: center;
+            padding: 2rem 0 1rem;
+        }
+        .support-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #1e1e2a;
+            margin-bottom: 0.3rem;
+        }
+        .support-header h1 span {
+            color: #c17b3a;
+        }
+        .support-header p {
+            color: #5a5a6a;
+            font-size: 1.1rem;
+        }
+
+        /* Support Grid */
+        .support-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .support-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* =====================================================
+           CONTACT INFO (Left Column)
+        ===================================================== */
+        .contact-info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .contact-card {
+            background: #f9f7f5;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            border: 1px solid #ede8e2;
+            transition: 0.3s;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+            border-color: #c17b3a;
+        }
+
+        .contact-card .icon {
+            font-size: 2rem;
+            color: #c17b3a;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-card h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e1e2a;
+            margin-bottom: 0.2rem;
+        }
+
+        .contact-card p {
+            font-size: 0.85rem;
+            color: #5a5a6a;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-card .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #c17b3a;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .contact-card .contact-link:hover {
+            gap: 14px;
+            color: #1e1e2a;
+        }
+
+        .whatsapp-link {
+            background: #25D366;
+            color: #fff !important;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .whatsapp-link:hover {
+            background: #1ebe5c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3);
+            color: #fff !important;
+            gap: 14px;
+        }
+
+        /* =====================================================
+           CONTACT FORM (Right Column)
+        ===================================================== */
+        .contact-form-section {
+            background: #f9f7f5;
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #ede8e2;
+        }
+
+        .contact-form-section h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: #1e1e2a;
+        }
+
+        .contact-form-section p {
+            color: #5a5a6a;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ede8e2;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            background: #ffffff;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #c17b3a;
+            box-shadow: 0 0 0 3px rgba(193, 123, 58, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-success {
+            display: none;
+            text-align: center;
+            padding: 1.2rem;
+            background: #dbeafe;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .form-success i {
+            color: #22c55e;
+            font-size: 1.8rem;
+        }
+
+        .form-success p {
+            color: #1e1e2a;
+            font-weight: 600;
+            margin-top: 0.3rem;
+        }
+
+        /* =====================================================
+           FAQ SECTION
+        ===================================================== */
+        .faq-section-support {
+            margin-top: 3rem;
+            border-top: 2px solid #ede8e2;
+            padding-top: 2.5rem;
+        }
+
+        .faq-section-support h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e1e2a;
+            text-align: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .faq-section-support .subtitle {
+            text-align: center;
+            color: #5a5a6a;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .faq-item {
+            border: 1px solid #ede8e2;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #ffffff;
+            transition: 0.2s;
+        }
+
+        .faq-item:hover {
+            border-color: #c17b3a;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e1e2a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-align: left;
+            gap: 1rem;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .faq-question:hover {
+            color: #c17b3a;
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: #5a5a6a;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            padding: 0 1.5rem;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding: 0 1.5rem 1.2rem 1.5rem;
+        }
+
+        .faq-answer p {
+            color: #5a5a6a;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .faq-answer strong {
+            color: #1e1e2a;
+        }
+
+        /* =====================================================
+           BACK TO HOME
+        ===================================================== */
+        .back-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1e1e2a;
+            color: #fff;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 2rem;
+            transition: 0.3s;
+        }
+
+        .back-home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            color: #fff;
+        }
+
+        .support-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ede8e2;
+            color: #5a5a6a;
+            font-size: 0.85rem;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+        @media (max-width: 480px) {
+            .support-page {
+                padding: 1rem 1rem 3rem;
+            }
+            .support-header h1 {
+                font-size: 2rem;
+            }
+            .contact-card {
+                padding: 1.2rem;
+            }
+            .contact-form-section {
+                padding: 1.2rem;
+            }
+            .faq-question {
+                font-size: 0.9rem;
+                padding: 0.8rem 1rem;
+            }
+            .faq-answer p {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- SUPPORT PAGE -->
+    <!-- ========================================== -->
+    <main class="support-page">
+
+        <!-- Header -->
+        <div class="support-header">
+            <h1>💬 <span>Support</span> Center</h1>
+            <p>We're here to help you grow your business</p>
+        </div>
+
+        <!-- Support Grid -->
+        <div class="support-grid">
+
+            <!-- LEFT: Contact Info -->
+            <div class="contact-info-section">
+
+                <div class="contact-card">
+                    <div class="icon"><i class="fab fa-whatsapp" style="color:#25D366;"></i></div>
+                    <h4>WhatsApp</h4>
+                    <p>Quick replies on WhatsApp</p>
+                    <a href="https://wa.me/919XXXXXXXXX" target="_blank" class="whatsapp-link">
+                        <i class="fab fa-whatsapp"></i> +91 9XXXXXXXXX
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <h4>Email Support</h4>
+                    <p>We'll respond within 24 hours</p>
+                    <a href="mailto:support@menuqr.com" class="contact-link">
+                        support@menuqr.com
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="contact-card" style="background:#1e1e2a; color:#fff; border-color:#1e1e2a;">
+                    <div class="icon" style="color:#c17b3a;"><i class="fas fa-clock"></i></div>
+                    <h4 style="color:#fff;">Response Time</h4>
+                    <p style="color:#b8b0a6;">We typically respond within <strong style="color:#fff;">2-4 hours</strong> during business hours.</p>
+                </div>
+            </div>
+
+            <!-- RIGHT: Contact Form -->
+            <div class="contact-form-section">
+                <h3>📩 Send Us a Message</h3>
+                <p>Fill in the details and we'll get back to you shortly.</p>
+
+                <form id="contactForm" onsubmit="handleContactForm(event)">
+                    <div class="form-group">
+                        <input type="text" id="contactName" placeholder="Your Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="contactRestaurant" placeholder="Restaurant Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="contactPhone" placeholder="Phone Number" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="contactMessage" placeholder="Your Message..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+
+                <div class="form-success" id="contactSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <p>✅ Message sent! We'll get back to you soon.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FAQ SECTION -->
+        <!-- ========================================== -->
+        <div class="faq-section-support">
+            <h2>❓ Frequently Asked Questions</h2>
+            <p class="subtitle">Common questions restaurant owners ask about MenuQR</p>
+
+            <div class="faq-list">
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>📱 Digital Menu setup karne me kitna time lagta hai?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Sirf <strong>5 minute</strong>! Account banayein, apne menu items add karein, aur aapka printable QR code ready ho jayega.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>💻 Kya mujhe koi special hardware ya machine khareedni padegi?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Bilkul nahi. Aapka current smartphone aur internet connection hi kafi hai. Customers apne khud ke mobile phone se QR scan karke menu dekh sakte hain.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>🔄 Kya main menu me item prices aur availability turant change kar sakta hu?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Haan, aap apne dashboard se <strong>1-click</strong> me kisi bhi item ko out-of-stock mark kar sakte hain ya prices update kar sakte hain. QR code same rahega.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>💳 14-Day Free Trial ke liye kya Credit/Debit card ki zarurat hai?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Nahi, <strong>koi card details nahi chahiye</strong>. Sign up karein aur 14 din tak sabhi features free me use karein.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>⏳ Trial khatam hone ke baad kya hoga?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Trial khatam hone par aap hamare affordable <strong>quarterly (3 months)</strong> ya <strong>yearly plans</strong> me upgrade kar sakte hain. Aapka data aur QR code bilkul safe rahega.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div style="text-align:center;">
+            <a href="index.html" class="back-home-btn">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+        <div class="support-footer">
+            &copy; 2026 MenuQR. All rights reserved.
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================== -->
+    <script>
+        // =============================================
+        // FAQ ACCORDION
+        // =============================================
+        function toggleFaq(button) {
+            const item = button.closest('.faq-item');
+            const isActive = item.classList.contains('active');
+
+            // Close all FAQs
+            document.querySelectorAll('.faq-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+
+            // If it wasn't active, open it
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        }
+
+        // =============================================
+        // CONTACT FORM
+        // =============================================
+        function handleContactForm(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('contactName').value;
+            const restaurant = document.getElementById('contactRestaurant').value;
+            const phone = document.getElementById('contactPhone').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // Show success message
+            const successDiv = document.getElementById('contactSuccess');
+            successDiv.style.display = 'block';
+
+            // Reset form
+            document.getElementById('contactForm').reset();
+
+            // Hide success after 5 seconds
+            setTimeout(function() {
+                successDiv.style.display = 'none';
+            }, 5000);
+
+            console.log('📩 Contact Form Submitted:', { name, restaurant, phone, message });
+        }
+
+        // Open first FAQ by default
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstFaq = document.querySelector('.faq-item');
+            if (firstFaq) {
+                firstFaq.classList.add('active');
+            }
+        });
+    </script>
+
+</body>
+</html>
