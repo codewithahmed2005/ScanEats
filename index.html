@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css">
   <style>
+    /* =====================================================
+       RESET & BASE
+    ===================================================== */
     * {
       margin: 0;
       padding: 0;
@@ -18,6 +21,10 @@
       color: #1e1e2a;
       line-height: 1.6;
     }
+
+    /* =====================================================
+       NAVBAR
+    ===================================================== */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -126,6 +133,10 @@
         display: block;
       }
     }
+
+    /* =====================================================
+       HERO SECTION (UPDATED)
+    ===================================================== */
     .hero {
       max-width: 1200px;
       margin: 0 auto;
@@ -143,6 +154,22 @@
         gap: 2rem;
       }
     }
+
+    /* Hero Badge (NEW) */
+    .hero-badge {
+      margin-bottom: 1.2rem;
+    }
+    .badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid #f59e0b;
+    }
+
     .hero-content h1 {
       font-size: 3rem;
       font-weight: 800;
@@ -169,6 +196,7 @@
         max-width: 100%;
       }
     }
+
     .hero-buttons {
       display: flex;
       gap: 1rem;
@@ -179,6 +207,7 @@
         justify-content: center;
       }
     }
+
     .btn-primary {
       background: #1e1e2a;
       color: #fff;
@@ -214,30 +243,61 @@
     .btn-secondary:hover {
       background: #e8e4de;
     }
-    .hero-stats {
+
+    /* Hero Features (NEW - Replacing Stats) */
+    .hero-features {
       display: flex;
-      gap: 2.5rem;
-      margin-top: 2.5rem;
+      gap: 2rem;
+      margin-top: 2rem;
       flex-wrap: wrap;
     }
     @media (max-width: 968px) {
-      .hero-stats {
+      .hero-features {
         justify-content: center;
       }
     }
-    .hero-stats .stat {
+    @media (max-width: 480px) {
+      .hero-features {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .hero-feature {
+        width: 100%;
+      }
+    }
+    .hero-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .hero-feature i {
+      font-size: 1.5rem;
+      color: #c17b3a;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f9f7f5;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .hero-feature div {
       display: flex;
       flex-direction: column;
     }
-    .hero-stats .stat .number {
-      font-size: 1.8rem;
-      font-weight: 700;
+    .hero-feature strong {
+      font-size: 0.9rem;
       color: #1e1e2a;
+      font-weight: 700;
     }
-    .hero-stats .stat .label {
-      font-size: 0.85rem;
-      color: #6b6b7a;
+    .hero-feature span {
+      font-size: 0.8rem;
+      color: #5a5a6a;
     }
+
+    /* Hero Image / Mockup */
     .hero-image {
       display: flex;
       justify-content: center;
@@ -304,6 +364,10 @@
       font-size: 0.8rem;
       color: #6b6b7a;
     }
+
+    /* =====================================================
+       FEATURES SECTION
+    ===================================================== */
     .features {
       background: #f9f7f5;
       padding: 4rem 2rem;
@@ -355,6 +419,10 @@
       color: #5a5a6a;
       font-size: 0.95rem;
     }
+
+    /* =====================================================
+       HOW IT WORKS
+    ===================================================== */
     .how-it-works {
       padding: 4rem 2rem;
       max-width: 1200px;
@@ -390,6 +458,10 @@
       color: #5a5a6a;
       font-size: 0.9rem;
     }
+
+    /* =====================================================
+       PRICING
+    ===================================================== */
     .pricing {
       background: #f9f7f5;
       padding: 4rem 2rem;
@@ -492,6 +564,10 @@
     .pricing-card .btn-plan.outline:hover {
       background: #f4f2ef;
     }
+
+    /* =====================================================
+       CTA SECTION (UPDATED)
+    ===================================================== */
     .cta-section {
       padding: 4rem 2rem;
       max-width: 1200px;
@@ -508,6 +584,10 @@
       font-size: 1.1rem;
       margin-bottom: 2rem;
     }
+
+    /* =====================================================
+       FOOTER (UPDATED)
+    ===================================================== */
     .footer {
       background: #1e1e2a;
       color: #b8b0a6;
@@ -517,42 +597,92 @@
       max-width: 1200px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 2rem;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2.5rem;
     }
-    .footer h4 {
+    @media (max-width: 992px) {
+      .footer-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .footer-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .footer-col h4 {
       color: #ffffff;
-      margin-bottom: 0.8rem;
       font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.5px;
     }
-    .footer a {
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .footer-col ul li {
+      margin-bottom: 0.3rem;
+    }
+    .footer-col ul li a {
       color: #b8b0a6;
       text-decoration: none;
-      display: block;
       font-size: 0.85rem;
-      padding: 0.2rem 0;
-      transition: 0.2s;
+      transition: color 0.2s ease;
+      display: inline-block;
     }
-    .footer a:hover {
+    .footer-col ul li a:hover {
       color: #ffffff;
     }
-    .footer .social {
+    .footer-brand {
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.3rem;
+    }
+    .footer-brand i {
+      color: #c17b3a;
+      font-size: 1.8rem;
+    }
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: #b8b0a6;
+      line-height: 1.6;
+      margin: 0 0 0.5rem 0;
+      max-width: 300px;
+    }
+    .footer-copyright {
+      font-size: 0.75rem;
+      color: #6b6b8a;
       margin-top: 0.5rem;
     }
-    .footer .social a {
-      font-size: 1.2rem;
+    @media (max-width: 600px) {
+      .footer-tagline {
+        max-width: 100%;
+      }
+      .footer-col {
+        text-align: center;
+        align-items: center;
+      }
+      .footer-col ul li a {
+        text-align: center;
+      }
     }
-    .footer-bottom {
-      max-width: 1200px;
-      margin: 2rem auto 0;
-      padding-top: 1.5rem;
-      border-top: 1px solid #33334a;
-      text-align: center;
-      font-size: 0.8rem;
-      color: #6b6b8a;
-    }
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
     @media (max-width: 768px) {
       .section-title h2 {
         font-size: 1.8rem;
@@ -588,16 +718,14 @@
         width: 100%;
         justify-content: center;
       }
-      .hero-stats {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
     }
   </style>
 </head>
 <body>
 
+<!-- ========================================== -->
+<!-- ===== NAVBAR ===== -->
+<!-- ========================================== -->
 <nav class="navbar">
   <a href="#" class="logo">
     <i class="fas fa-qrcode"></i> ScanEats
@@ -613,63 +741,163 @@
   </button>
 </nav>
 
+<!-- ========================================== -->
+<!-- ===== HERO SECTION ===== -->
+<!-- ========================================== -->
 <section class="hero">
   <div class="hero-content">
-    <h1>Digital Menu with <span>QR Code</span> for Restaurants</h1>
-    <p>Create stunning digital menus, generate QR codes, and let your customers browse your menu instantly — no app download required.</p>
-    <div class="hero-buttons">
-      <a href="auth.html" class="btn-primary"><i class="fas fa-rocket"></i> Start Free Trial</a>
-      <a href="#how-it-works" class="btn-secondary"><i class="fas fa-play-circle"></i> See How It Works</a>
+    <!-- HERO BADGE (NEW) -->
+    <div class="hero-badge">
+      <span class="badge">🚀 Start Your 14-Day Free Trial Today</span>
     </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="number">5,000+</span><span class="label">Restaurants Using</span></div>
-      <div class="stat"><span class="number">1.2M+</span><span class="label">QR Scans</span></div>
-      <div class="stat"><span class="number">98%</span><span class="label">Satisfaction Rate</span></div>
+    
+    <h1>Digital Menu with <span>QR Code</span> for Restaurants</h1>
+    <p>
+      Create stunning digital menus, generate QR codes, and let your customers
+      browse your menu instantly — no app download required.
+    </p>
+    <div class="hero-buttons">
+      <a href="auth.html" class="btn-primary">
+        <i class="fas fa-rocket"></i> Start Free Trial
+      </a>
+      <a href="#how-it-works" class="btn-secondary">
+        <i class="fas fa-play-circle"></i> See How It Works
+      </a>
+    </div>
+    
+    <!-- HERO FEATURES (NEW - Replaces fake stats) -->
+    <div class="hero-features">
+      <div class="hero-feature">
+        <i class="fas fa-bolt"></i>
+        <div>
+          <strong>Instant Setup</strong>
+          <span>Go digital in under 5 minutes</span>
+        </div>
+      </div>
+      <div class="hero-feature">
+        <i class="fas fa-mobile-alt"></i>
+        <div>
+          <strong>Zero Hardware</strong>
+          <span>Works on any smartphone or tablet QR</span>
+        </div>
+      </div>
+      <div class="hero-feature">
+        <i class="fas fa-sync-alt"></i>
+        <div>
+          <strong>100% Dynamic</strong>
+          <span>Update prices & items in real-time</span>
+        </div>
+      </div>
     </div>
   </div>
   <div class="hero-image">
     <div class="mockup">
       <div class="mockup-header">
         <span><i class="fas fa-utensils"></i> Tasty Bites</span>
-        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
       <div class="mockup-body">
-        <div class="card"><div class="emoji">🍕</div><div class="name">Margherita</div><div class="price">$12.50</div></div>
-        <div class="card"><div class="emoji">🍔</div><div class="name">Classic Burger</div><div class="price">$14.00</div></div>
-        <div class="card"><div class="emoji">🍣</div><div class="name">Salmon Roll</div><div class="price">$16.20</div></div>
-        <div class="card"><div class="emoji">🥗</div><div class="name">Greek Salad</div><div class="price">$9.90</div></div>
+        <div class="card">
+          <div class="emoji">🍕</div>
+          <div class="name">Margherita</div>
+          <div class="price">$12.50</div>
+        </div>
+        <div class="card">
+          <div class="emoji">🍔</div>
+          <div class="name">Classic Burger</div>
+          <div class="price">$14.00</div>
+        </div>
+        <div class="card">
+          <div class="emoji">🍣</div>
+          <div class="name">Salmon Roll</div>
+          <div class="price">$16.20</div>
+        </div>
+        <div class="card">
+          <div class="emoji">🥗</div>
+          <div class="name">Greek Salad</div>
+          <div class="price">$9.90</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- ===== FEATURES ===== -->
+<!-- ========================================== -->
 <section class="features" id="features">
   <div class="features-container">
-    <div class="section-title"><h2>Everything You Need for Digital Menu</h2><p>Simple, powerful tools to manage your restaurant menu</p></div>
+    <div class="section-title">
+      <h2>Everything You Need for Digital Menu</h2>
+      <p>Simple, powerful tools to manage your restaurant menu</p>
+    </div>
     <div class="features-grid">
-      <div class="feature-card"><div class="icon"><i class="fas fa-edit"></i></div><h3>Easy Menu Management</h3><p>Add, edit, or remove dishes in seconds. Update your menu instantly.</p></div>
-      <div class="feature-card"><div class="icon"><i class="fas fa-qrcode"></i></div><h3>QR Code Generator</h3><p>Generate QR codes automatically. Download and print for tables.</p></div>
-      <div class="feature-card"><div class="icon"><i class="fas fa-mobile-alt"></i></div><h3>No App Required</h3><p>Customers scan QR and view menu instantly in their browser.</p></div>
-      <!-- <div class="feature-card"><div class="icon"><i class="fas fa-chart-line"></i></div><h3>Analytics Dashboard</h3><p>Track views, popular dishes, and customer engagement.</p></div>
-      <div class="feature-card"><div class="icon"><i class="fas fa-globe"></i></div><h3>Multi-Language Support</h3><p>Reach more customers with multilingual menu options.</p></div> -->
-      <div class="feature-card"><div class="icon"><i class="fas fa-cloud-upload-alt"></i></div><h3>Real-Time Updates</h3><p>Changes reflect instantly. No need to reprint menus.</p></div>
+      <div class="feature-card">
+        <div class="icon"><i class="fas fa-edit"></i></div>
+        <h3>Easy Menu Management</h3>
+        <p>Add, edit, or remove dishes in seconds. Update your menu instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon"><i class="fas fa-qrcode"></i></div>
+        <h3>QR Code Generator</h3>
+        <p>Generate QR codes automatically. Download and print for tables.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+        <h3>No App Required</h3>
+        <p>Customers scan QR and view menu instantly in their browser.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <h3>Real-Time Updates</h3>
+        <p>Changes reflect instantly. No need to reprint menus.</p>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- ===== HOW IT WORKS ===== -->
+<!-- ========================================== -->
 <section class="how-it-works" id="how-it-works">
-  <div class="section-title"><h2>How It Works</h2><p>Get started in 3 simple steps</p></div>
+  <div class="section-title">
+    <h2>How It Works</h2>
+    <p>Get started in 3 simple steps</p>
+  </div>
   <div class="steps">
-    <div class="step"><div class="step-number">1</div><h4>Create Your Menu</h4><p>Add dishes with name, price, description, and emoji.</p></div>
-    <div class="step"><div class="step-number">2</div><h4>Generate QR Code</h4><p>Download QR code and place it on tables or counter.</p></div>
-    <div class="step"><div class="step-number">3</div><h4>Customers Scan & View</h4><p>Scan QR and see your digital menu instantly.</p></div>
+    <div class="step">
+      <div class="step-number">1</div>
+      <h4>Create Your Menu</h4>
+      <p>Add dishes with name, price, description, and emoji.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <h4>Generate QR Code</h4>
+      <p>Download QR code and place it on tables or counter.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <h4>Customers Scan & View</h4>
+      <p>Scan QR and see your digital menu instantly.</p>
+    </div>
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- ===== PRICING ===== -->
+<!-- ========================================== -->
 <section class="pricing" id="pricing">
   <div class="pricing-container">
-    <div class="section-title"><h2>Simple, Transparent Pricing</h2><p>Choose the plan that fits your restaurant</p></div>
+    <div class="section-title">
+      <h2>Simple, Transparent Pricing</h2>
+      <p>Choose the plan that fits your restaurant</p>
+    </div>
     <div class="pricing-grid">
+      <!-- Free Plan -->
       <div class="pricing-card">
         <div class="plan-name">Free</div>
         <div class="price">$0 <span>/month</span></div>
@@ -681,6 +909,8 @@
         </ul>
         <a href="auth.html" class="btn-plan outline">Get Started</a>
       </div>
+
+      <!-- Pro Plan (Popular) -->
       <div class="pricing-card popular">
         <div class="plan-name">Pro</div>
         <div class="price">$19 <span>/month</span></div>
@@ -694,6 +924,8 @@
         </ul>
         <a href="auth.html" class="btn-plan">Start Free Trial</a>
       </div>
+
+      <!-- Business Plan -->
       <div class="pricing-card">
         <div class="plan-name">Business</div>
         <div class="price">$49 <span>/month</span></div>
@@ -711,11 +943,18 @@
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- ===== CTA SECTION ===== -->
+<!-- ========================================== -->
 <section class="cta-section" id="cta">
   <h2>Ready to Go Digital?</h2>
-  <p>Join 5,000+ restaurants already using ScanEats</p>
-  <a href="auth.html" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;"><i class="fas fa-rocket"></i> Start Free Trial</a>
-  <p style="margin-top: 1rem; font-size: 0.9rem; color: #8b8b9a;">No credit card required · 14-day free trial</p>
+  <p>Start your 14-day free trial today — no credit card required</p>
+  <a href="auth.html" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;">
+    <i class="fas fa-rocket"></i> Start Free Trial
+  </a>
+  <p style="margin-top: 1rem; font-size: 0.9rem; color: #8b8b9a;">
+    No credit card required · 14-day free trial
+  </p>
 </section>
 
 <!-- ========================================== -->
@@ -758,16 +997,20 @@
 
     <!-- Column 4: Support -->
     <div class="footer-col">
-  <h4>Support</h4>
-  <ul>
-    <li><a href="support.html">Contact Us</a></li>
-    <li><a href="support.html#faq">FAQ</a></li>
+      <h4>Support</h4>
+      <ul>
+        <li><a href="support.html">Contact Us</a></li>
+        <li><a href="support.html#faq">FAQ</a></li>
       </ul>
     </div>
   </div>
 </footer>
 
+<!-- ========================================== -->
+<!-- ===== JAVASCRIPT ===== -->
+<!-- ========================================== -->
 <script>
+  // Mobile Menu Toggle
   document.addEventListener('DOMContentLoaded', function() {
     const mobileToggle = document.getElementById('mobileMenuToggle');
     const navLinks = document.getElementById('navLinks');
@@ -801,6 +1044,8 @@
       });
     }
   });
+
+  // Smooth Scroll
   document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
     anchor.addEventListener('click', function(e) {
       e.preventDefault();
@@ -811,5 +1056,6 @@
     });
   });
 </script>
+
 </body>
 </html>
