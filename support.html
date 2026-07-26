@@ -130,7 +130,7 @@
         }
 
         /* =====================================================
-           CONTACT FORM (Right Column - UPDATED)
+           CONTACT FORM (Right Column)
         ===================================================== */
         .contact-form-section {
             background: #f9f7f5;
@@ -511,7 +511,7 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Contact Form (UPDATED with Web3Forms) -->
+            <!-- RIGHT: Contact Form -->
             <div class="contact-form-section">
                 <h3>📩 Send Us a Message</h3>
                 <p>Fill in the details and we'll get back to you shortly.</p>
@@ -573,7 +573,7 @@
         <!-- ========================================== -->
         <!-- FAQ SECTION -->
         <!-- ========================================== -->
-        <div class="faq-section-support">
+        <div class="faq-section-support" id="faq">
             <h2>❓ Frequently Asked Questions</h2>
             <p class="subtitle">Common questions restaurant owners ask about ScanEats</p>
 
@@ -666,20 +666,13 @@
         }
 
         // =============================================
-        // WEB3FORMS CONTACT FORM
+        // CONTACT FORM (Web3Forms via Backend Proxy)
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('contactForm');
             const submitBtn = document.getElementById('submitBtn');
             const successDiv = document.getElementById('contactSuccess');
             const errorDiv = document.getElementById('contactError');
-
-            // =============================================
-            // WEB3FORMS ACCESS KEY
-            // =============================================
-            // ✅ FREE - Register at https://web3forms.com
-            // Sign up → Get your access key → Replace below
-            const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
 
             // =============================================
             // REAL-TIME VALIDATION
@@ -746,7 +739,6 @@
                 const isMessageValid = validateField(messageInput, 'messageError', message.length >= 10);
 
                 if (!isNameValid || !isEmailValid || !isCategoryValid || !isMessageValid) {
-                    // Scroll to first error
                     const firstError = form.querySelector('.form-group.error');
                     if (firstError) {
                         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -756,29 +748,33 @@
                 }
 
                 // =============================================
-                // SEND TO WEB3FORMS
+                // SEND TO BACKEND
                 // =============================================
                 submitBtn.disabled = true;
                 submitBtn.classList.add('loading');
 
                 try {
                     const payload = {
-                        access_key: WEB3FORMS_ACCESS_KEY,
                         name: name,
                         email: email,
+                        category: category,
                         subject: `ScanEats Support: ${category} from ${name}`,
-                        message: `Category: ${category}\n\nMessage:\n${message}`
+                        message: `Category: ${category}\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
                     };
 
-                    
-const response = await fetch('https://scaneats-backend.onrender.com/api/contact', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-});
-// ❌ Frontend DIRECT Web3Forms call nahi karega
+                    console.log('📤 Sending to backend:', payload);
+
+                    // ✅ Call backend API
+                    const response = await fetch('https://scaneats-backend.onrender.com/api/contact', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
 
                     const result = await response.json();
+                    console.log('📥 Backend response:', result);
 
                     if (result.success) {
                         // ✅ Success
@@ -791,11 +787,10 @@ const response = await fetch('https://scaneats-backend.onrender.com/api/contact'
                         document.querySelectorAll('.error-msg').forEach(function(el) {
                             el.classList.remove('show');
                         });
-                        // Scroll to success message
                         successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     } else {
-                        // ❌ API Error
-                        console.error('Web3Forms Error:', result);
+                        // ❌ Error from backend
+                        console.error('Backend Error:', result);
                         errorDiv.style.display = 'block';
                         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
