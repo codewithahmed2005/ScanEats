@@ -764,13 +764,20 @@
 
                     console.log('📤 Sending payload:', payload);
 
-                    const response = await fetch('https://scaneats-backend.onrender.com/api/contact', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload)
-                    });
+// support.html — Direct Web3Forms call
+const response = await fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        access_key: '9e26f918-c9e6-4a67-bed4-2a10bd76d095', // Your key
+        name: name,
+        email: email,
+        subject: subject,
+        message: message
+    })
+});
 
                     console.log('📥 Response status:', response.status);
                     
