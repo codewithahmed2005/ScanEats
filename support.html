@@ -770,13 +770,13 @@
                         message: `Category: ${category}\n\nMessage:\n${message}`
                     };
 
-                    const response = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload)
-                    });
+                    
+const response = await fetch('https://scaneats-backend.onrender.com/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+});
+// ❌ Frontend DIRECT Web3Forms call nahi karega
 
                     const result = await response.json();
 
