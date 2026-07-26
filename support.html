@@ -666,7 +666,7 @@
         }
 
         // =============================================
-        // CONTACT FORM (Web3Forms via Backend Proxy)
+        // CONTACT FORM (Web3Forms via Backend Proxy) — FIXED
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('contactForm');
@@ -754,17 +754,16 @@
                 submitBtn.classList.add('loading');
 
                 try {
+                    // ✅ Simple payload without extra formatting
                     const payload = {
                         name: name,
                         email: email,
-                        category: category,
-                        subject: `ScanEats Support: ${category} from ${name}`,
-                        message: `Category: ${category}\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+                        subject: `ScanEats Support: ${category} - ${name}`,
+                        message: `Category: ${category}\n\n${message}`
                     };
 
-                    console.log('📤 Sending to backend:', payload);
+                    console.log('📤 Sending payload:', payload);
 
-                    // ✅ Call backend API
                     const response = await fetch('https://scaneats-backend.onrender.com/api/contact', {
                         method: 'POST',
                         headers: {
@@ -773,14 +772,14 @@
                         body: JSON.stringify(payload)
                     });
 
+                    console.log('📥 Response status:', response.status);
+                    
                     const result = await response.json();
-                    console.log('📥 Backend response:', result);
+                    console.log('📥 Response body:', result);
 
                     if (result.success) {
-                        // ✅ Success
                         form.reset();
                         successDiv.style.display = 'block';
-                        // Remove error states
                         document.querySelectorAll('.form-group').forEach(function(el) {
                             el.classList.remove('error');
                         });
@@ -789,13 +788,11 @@
                         });
                         successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     } else {
-                        // ❌ Error from backend
                         console.error('Backend Error:', result);
                         errorDiv.style.display = 'block';
                         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 } catch (error) {
-                    // ❌ Network Error
                     console.error('Network Error:', error);
                     errorDiv.style.display = 'block';
                     errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
