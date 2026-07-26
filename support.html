@@ -760,12 +760,15 @@
                 submitBtn.classList.add('loading');
 
                 try {
+                    // ✅ Build subject from category
+                    const subject = `ScanEats Support: ${category} - ${name}`;
+
                     // ✅ Direct Web3Forms payload
                     const payload = {
                         access_key: WEB3FORMS_ACCESS_KEY,
                         name: name,
                         email: email,
-                        subject: `ScanEats Support: ${category} - ${name}`,
+                        subject: subject,
                         message: `Category: ${category}\n\n${message}`
                     };
 
