@@ -666,19 +666,13 @@
         }
 
         // =============================================
-        // CONTACT FORM — DIRECT WEB3FORMS (CLIENT-SIDE)
+        // CONTACT FORM — SECURE (Web3Forms via Backend Config)
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('contactForm');
             const submitBtn = document.getElementById('submitBtn');
             const successDiv = document.getElementById('contactSuccess');
             const errorDiv = document.getElementById('contactError');
-
-            // =============================================
-            // WEB3FORMS ACCESS KEY
-            // =============================================
-            // ✅ Your Web3Forms Access Key (Replace with yours)
-            const WEB3FORMS_ACCESS_KEY = '9e26f918-c9e6-4a67-bed4-2a10bd76d095';
 
             // =============================================
             // REAL-TIME VALIDATION
@@ -720,6 +714,29 @@
             });
 
             // =============================================
+            // GET ACCESS KEY FROM BACKEND
+            // =============================================
+            let web3formsKey = null;
+
+            async function getWeb3FormsKey() {
+                try {
+                    const response = await fetch('https://scaneats-backend.onrender.com/api/config/web3forms');
+                    const data = await response.json();
+                    if (data.success) {
+                        web3formsKey = data.access_key;
+                        console.log('✅ Web3Forms key loaded securely');
+                    } else {
+                        console.error('❌ Failed to load Web3Forms key:', data.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading Web3Forms key:', error);
+                }
+            }
+
+            // Load key when page loads
+            getWeb3FormsKey();
+
+            // =============================================
             // FORM SUBMIT
             // =============================================
             form.addEventListener('submit', async function(e) {
@@ -754,27 +771,34 @@
                 }
 
                 // =============================================
+                // CHECK IF KEY IS LOADED
+                // =============================================
+                if (!web3formsKey) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.querySelector('p').textContent = '❌ Configuration loading. Please try again.';
+                    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                // =============================================
                 // SEND TO WEB3FORMS DIRECTLY (CLIENT-SIDE)
                 // =============================================
                 submitBtn.disabled = true;
                 submitBtn.classList.add('loading');
 
                 try {
-                    // ✅ Build subject from category
                     const subject = `ScanEats Support: ${category} - ${name}`;
 
-                    // ✅ Direct Web3Forms payload
                     const payload = {
-                        access_key: WEB3FORMS_ACCESS_KEY,
+                        access_key: web3formsKey,
                         name: name,
                         email: email,
                         subject: subject,
                         message: `Category: ${category}\n\n${message}`
                     };
 
-                    console.log('📤 Sending to Web3Forms:', payload);
+                    console.log('📤 Sending to Web3Forms...');
 
-                    // ✅ Direct API call (NO BACKEND)
                     const response = await fetch('https://api.web3forms.com/submit', {
                         method: 'POST',
                         headers: {
@@ -787,7 +811,6 @@
                     console.log('📥 Web3Forms response:', result);
 
                     if (result.success) {
-                        // ✅ Success
                         form.reset();
                         successDiv.style.display = 'block';
                         document.querySelectorAll('.form-group').forEach(function(el) {
@@ -798,13 +821,11 @@
                         });
                         successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     } else {
-                        // ❌ Web3Forms Error
                         console.error('Web3Forms Error:', result);
                         errorDiv.style.display = 'block';
                         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 } catch (error) {
-                    // ❌ Network Error
                     console.error('Network Error:', error);
                     errorDiv.style.display = 'block';
                     errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
