@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support · SanEats</title>
+    <title>Support · ScanEats</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css">
     <style>
@@ -18,7 +18,6 @@
             min-height: 100vh;
         }
 
-        /* Header */
         .support-header {
             text-align: center;
             padding: 2rem 0 1rem;
@@ -37,7 +36,6 @@
             font-size: 1.1rem;
         }
 
-        /* Support Grid */
         .support-grid {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
@@ -132,7 +130,7 @@
         }
 
         /* =====================================================
-           CONTACT FORM (Right Column)
+           CONTACT FORM (Right Column - UPDATED)
         ===================================================== */
         .contact-form-section {
             background: #f9f7f5;
@@ -158,7 +156,16 @@
             margin-bottom: 1rem;
         }
 
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e1e2a;
+            margin-bottom: 0.3rem;
+        }
+
         .form-group input,
+        .form-group select,
         .form-group textarea {
             width: 100%;
             padding: 12px 16px;
@@ -171,6 +178,7 @@
         }
 
         .form-group input:focus,
+        .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: #c17b3a;
@@ -182,11 +190,82 @@
             min-height: 100px;
         }
 
+        .form-group .error-msg {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+
+        .form-group .error-msg.show {
+            display: block;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: #ef4444;
+        }
+
+        .btn-submit {
+            background: #1e1e2a;
+            color: #fff;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-submit .spinner-small {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .btn-submit.loading .spinner-small {
+            display: inline-block;
+        }
+
+        .btn-submit.loading .btn-text {
+            display: none;
+        }
+
+        .btn-submit.loading .btn-loading-text {
+            display: inline;
+        }
+
+        .btn-submit .btn-loading-text {
+            display: none;
+        }
+
         .form-success {
             display: none;
             text-align: center;
             padding: 1.2rem;
-            background: #dbeafe;
+            background: #dcfce7;
+            border: 1px solid #22c55e;
             border-radius: 12px;
             margin-top: 1rem;
         }
@@ -197,9 +276,39 @@
         }
 
         .form-success p {
-            color: #1e1e2a;
+            color: #166534;
             font-weight: 600;
             margin-top: 0.3rem;
+            font-size: 0.95rem;
+        }
+
+        .form-success .sub-text {
+            color: #4a4a5a;
+            font-weight: 400;
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+        }
+
+        .form-error {
+            display: none;
+            text-align: center;
+            padding: 1.2rem;
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .form-error i {
+            color: #ef4444;
+            font-size: 1.8rem;
+        }
+
+        .form-error p {
+            color: #991b1b;
+            font-weight: 600;
+            margin-top: 0.3rem;
+            font-size: 0.95rem;
         }
 
         /* =====================================================
@@ -389,8 +498,8 @@
                     <div class="icon"><i class="fas fa-envelope"></i></div>
                     <h4>Email Support</h4>
                     <p>We'll respond within 24 hours</p>
-                    <a href="mailto:support@scaneats.com" class="contact-link">
-                        support@scaneats.com
+                    <a href="mailto:support@menuqr.com" class="contact-link">
+                        support@menuqr.com
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -402,38 +511,67 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Contact Form -->
+            <!-- RIGHT: Contact Form (UPDATED with Web3Forms) -->
             <div class="contact-form-section">
                 <h3>📩 Send Us a Message</h3>
                 <p>Fill in the details and we'll get back to you shortly.</p>
 
-                <form id="contactForm" onsubmit="handleContactForm(event)">
+                <form id="contactForm">
                     <div class="form-group">
+                        <label for="contactName">Full Name *</label>
                         <input type="text" id="contactName" placeholder="Your Full Name" required>
+                        <div class="error-msg" id="nameError">Please enter your full name</div>
                     </div>
+
                     <div class="form-group">
-                        <input type="text" id="contactRestaurant" placeholder="Restaurant Name" required>
+                        <label for="contactEmail">Email Address *</label>
+                        <input type="email" id="contactEmail" placeholder="your@email.com" required>
+                        <div class="error-msg" id="emailError">Please enter a valid email address</div>
                     </div>
+
                     <div class="form-group">
-                        <input type="tel" id="contactPhone" placeholder="Phone Number" required>
+                        <label for="contactCategory">Issue Type *</label>
+                        <select id="contactCategory" required>
+                            <option value="">Select an issue type</option>
+                            <option value="Technical Issue">Technical Issue</option>
+                            <option value="Billing &amp; Pricing">Billing &amp; Pricing</option>
+                            <option value="Feature Request">Feature Request</option>
+                            <option value="General Question">General Question</option>
+                        </select>
+                        <div class="error-msg" id="categoryError">Please select an issue type</div>
                     </div>
+
                     <div class="form-group">
-                        <textarea id="contactMessage" placeholder="Your Message..." rows="4" required></textarea>
+                        <label for="contactMessage">Message *</label>
+                        <textarea id="contactMessage" placeholder="Describe your issue in detail..." rows="4" required></textarea>
+                        <div class="error-msg" id="messageError">Message must be at least 10 characters</div>
                     </div>
-                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
-                        <i class="fas fa-paper-plane"></i> Send Message
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span class="btn-text"><i class="fas fa-paper-plane"></i> Send Message</span>
+                        <span class="btn-loading-text">Sending message...</span>
+                        <span class="spinner-small"></span>
                     </button>
                 </form>
 
+                <!-- Success Message -->
                 <div class="form-success" id="contactSuccess">
                     <i class="fas fa-check-circle"></i>
-                    <p>✅ Message sent! We'll get back to you soon.</p>
+                    <p>✅ Your message has been sent successfully!</p>
+                    <p class="sub-text">We will get back to you within 24 hours.</p>
+                </div>
+
+                <!-- Error Message -->
+                <div class="form-error" id="contactError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>❌ Failed to send message.</p>
+                    <p class="sub-text">Please check your connection and try again.</p>
                 </div>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- FAQ SECTION (ENGLISH) -->
+        <!-- FAQ SECTION -->
         <!-- ========================================== -->
         <div class="faq-section-support">
             <h2>❓ Frequently Asked Questions</h2>
@@ -518,42 +656,160 @@
             const item = button.closest('.faq-item');
             const isActive = item.classList.contains('active');
 
-            // Close all FAQs
             document.querySelectorAll('.faq-item').forEach(function(el) {
                 el.classList.remove('active');
             });
 
-            // If it wasn't active, open it
             if (!isActive) {
                 item.classList.add('active');
             }
         }
 
         // =============================================
-        // CONTACT FORM
+        // WEB3FORMS CONTACT FORM
         // =============================================
-        function handleContactForm(event) {
-            event.preventDefault();
-
-            const name = document.getElementById('contactName').value;
-            const restaurant = document.getElementById('contactRestaurant').value;
-            const phone = document.getElementById('contactPhone').value;
-            const message = document.getElementById('contactMessage').value;
-
-            // Show success message
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('contactForm');
+            const submitBtn = document.getElementById('submitBtn');
             const successDiv = document.getElementById('contactSuccess');
-            successDiv.style.display = 'block';
+            const errorDiv = document.getElementById('contactError');
 
-            // Reset form
-            document.getElementById('contactForm').reset();
+            // =============================================
+            // WEB3FORMS ACCESS KEY
+            // =============================================
+            // ✅ FREE - Register at https://web3forms.com
+            // Sign up → Get your access key → Replace below
+            const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
 
-            // Hide success after 5 seconds
-            setTimeout(function() {
+            // =============================================
+            // REAL-TIME VALIDATION
+            // =============================================
+            const nameInput = document.getElementById('contactName');
+            const emailInput = document.getElementById('contactEmail');
+            const categoryInput = document.getElementById('contactCategory');
+            const messageInput = document.getElementById('contactMessage');
+
+            function validateField(input, errorId, condition) {
+                const errorEl = document.getElementById(errorId);
+                const group = input.closest('.form-group');
+                if (!condition) {
+                    group.classList.add('error');
+                    errorEl.classList.add('show');
+                    return false;
+                } else {
+                    group.classList.remove('error');
+                    errorEl.classList.remove('show');
+                    return true;
+                }
+            }
+
+            nameInput.addEventListener('blur', function() {
+                validateField(this, 'nameError', this.value.trim().length >= 2);
+            });
+
+            emailInput.addEventListener('blur', function() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                validateField(this, 'emailError', emailRegex.test(this.value.trim()));
+            });
+
+            categoryInput.addEventListener('change', function() {
+                validateField(this, 'categoryError', this.value !== '');
+            });
+
+            messageInput.addEventListener('blur', function() {
+                validateField(this, 'messageError', this.value.trim().length >= 10);
+            });
+
+            // =============================================
+            // FORM SUBMIT
+            // =============================================
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Hide previous messages
                 successDiv.style.display = 'none';
-            }, 5000);
+                errorDiv.style.display = 'none';
 
-            console.log('📩 Contact Form Submitted:', { name, restaurant, phone, message });
-        }
+                // Get values
+                const name = nameInput.value.trim();
+                const email = emailInput.value.trim();
+                const category = categoryInput.value;
+                const message = messageInput.value.trim();
+
+                // =============================================
+                // VALIDATE ALL FIELDS
+                // =============================================
+                const isNameValid = validateField(nameInput, 'nameError', name.length >= 2);
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isEmailValid = validateField(emailInput, 'emailError', emailRegex.test(email));
+                const isCategoryValid = validateField(categoryInput, 'categoryError', category !== '');
+                const isMessageValid = validateField(messageInput, 'messageError', message.length >= 10);
+
+                if (!isNameValid || !isEmailValid || !isCategoryValid || !isMessageValid) {
+                    // Scroll to first error
+                    const firstError = form.querySelector('.form-group.error');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.querySelector('input, select, textarea')?.focus();
+                    }
+                    return;
+                }
+
+                // =============================================
+                // SEND TO WEB3FORMS
+                // =============================================
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+
+                try {
+                    const payload = {
+                        access_key: WEB3FORMS_ACCESS_KEY,
+                        name: name,
+                        email: email,
+                        subject: `ScanEats Support: ${category} from ${name}`,
+                        message: `Category: ${category}\n\nMessage:\n${message}`
+                    };
+
+                    const response = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // ✅ Success
+                        form.reset();
+                        successDiv.style.display = 'block';
+                        // Remove error states
+                        document.querySelectorAll('.form-group').forEach(function(el) {
+                            el.classList.remove('error');
+                        });
+                        document.querySelectorAll('.error-msg').forEach(function(el) {
+                            el.classList.remove('show');
+                        });
+                        // Scroll to success message
+                        successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        // ❌ API Error
+                        console.error('Web3Forms Error:', result);
+                        errorDiv.style.display = 'block';
+                        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } catch (error) {
+                    // ❌ Network Error
+                    console.error('Network Error:', error);
+                    errorDiv.style.display = 'block';
+                    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
+            });
+        });
 
         // Open first FAQ by default
         document.addEventListener('DOMContentLoaded', function() {
