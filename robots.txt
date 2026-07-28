@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://scan-eats-sandy.vercel.app/sitemap.xml
