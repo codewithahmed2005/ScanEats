@@ -49,7 +49,7 @@ function showToast(msg, type = 'success') {
 }
 
 // =====================================================================
-// RAZORPAY PAYMENT FUNCTIONS (NEW)
+// RAZORPAY PAYMENT FUNCTIONS
 // =====================================================================
 
 async function loadRazorpayScript() {
@@ -77,7 +77,6 @@ async function startPayment(plan = '3_months') {
     try {
         showToast('Creating order...', 'warning');
         
-        // 1. Create order from backend
         const orderData = await apiFetch('/api/create-order', 'POST', { plan: plan });
         
         if (orderData.error) {
@@ -90,10 +89,8 @@ async function startPayment(plan = '3_months') {
             return;
         }
         
-        // 2. Load Razorpay SDK dynamically
         await loadRazorpayScript();
         
-        // 3. Open Razorpay Checkout
         const options = {
             key: orderData.key_id,
             amount: orderData.amount,
@@ -153,10 +150,91 @@ async function verifyPayment(response) {
 }
 
 // =====================================================================
+// SUBSCRIPTION EXPIRY BANNER (NEW)
+// =====================================================================
+
+async function checkSubscriptionStatus() {
+    const token = getToken();
+    if (!token) return;
+    
+    const data = await apiFetch('/api/subscription-status');
+    if (data.error) {
+        console.error('Subscription status error:', data.error);
+        return;
+    }
+    
+    const banner = document.getElementById('subscriptionBanner');
+    const hasAccess = data.has_active_access;
+    const isSubscribed = data.is_subscribed;
+    const endDate = data.subscription_end_date;
+    const daysLeft = data.days_remaining || 0;
+    
+    if (!banner) return;
+    
+    if (!hasAccess) {
+        // ⭐ EXPIRED — Show lockout banner
+        banner.style.display = 'block';
+        banner.style.background = '#fee2e2';
+        banner.style.borderColor = '#ef4444';
+        banner.innerHTML = `
+            <div class="banner-content">
+                <span class="banner-icon">⛔</span>
+                <span class="banner-text">
+                    Your ${isSubscribed ? 'subscription' : 'trial'} expired on 
+                    ${endDate ? new Date(endDate).toLocaleDateString() : 'recently'}. 
+                    <strong>Renew now to make your public QR menu visible to customers again.</strong>
+                </span>
+                <button onclick="startPayment('3_months')" class="btn-primary banner-btn">
+                    Renew Subscription
+                </button>
+            </div>
+        `;
+        
+        // Disable dashboard actions
+        disableDashboardActions();
+        
+    } else if (isSubscribed && daysLeft <= 7) {
+        // ⚠️ Subscription ending soon
+        banner.style.display = 'block';
+        banner.style.background = '#fef3c7';
+        banner.style.borderColor = '#f59e0b';
+        banner.innerHTML = `
+            <div class="banner-content">
+                <span class="banner-icon">⚠️</span>
+                <span class="banner-text">
+                    Your subscription ends in <strong>${daysLeft} days</strong>. 
+                    Renew now to avoid interruption.
+                </span>
+                <button onclick="startPayment('3_months')" class="btn-primary banner-btn" style="background:#f59e0b;">
+                    Renew Now
+                </button>
+            </div>
+        `;
+    } else {
+        banner.style.display = 'none';
+    }
+}
+
+function disableDashboardActions() {
+    // Disable Add/Edit/Delete buttons
+    document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn, .btn-submit').forEach(function(el) {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+        el.style.cursor = 'not-allowed';
+    });
+    document.querySelectorAll('form input, form select, form textarea').forEach(function(el) {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+    });
+    document.querySelectorAll('.switch input').forEach(function(el) {
+        el.disabled = true;
+    });
+}
+
+// =====================================================================
 // GOOGLE OAUTH HANDLER
 // =====================================================================
 
-// Check for Google OAuth callback on auth page
 if (window.location.pathname.includes('auth.html')) {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -229,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// TRIAL CHECK
+// TRIAL CHECK (UPDATED)
 // =====================================================================
 let trialCheckInterval = null;
 let alertShown6Days = false;
@@ -243,16 +321,23 @@ async function checkTrialStatus() {
         console.error('Trial status error:', data.error);
         return;
     }
-    const daysLeft = data.remaining_days;
+    
+    const daysLeft = data.trial_days_left || 0;
     const isSubscribed = data.is_subscribed;
-    const isExpired = data.is_expired;
+    const isTrialExpired = data.is_trial_expired;
+    const hasActiveSubscription = data.has_active_subscription;
+    const hasActiveAccess = data.has_active_access;
+    
     const banner = document.getElementById('trialBanner');
     const daysElement = document.getElementById('trialDays');
     const progressBar = document.getElementById('trialProgressBar');
     const upgradeBtn = document.getElementById('upgradeBtn');
+    
     if (!banner) return;
-    banner.style.display = 'block';
-    if (isSubscribed) {
+    
+    // If subscription is active OR trial is active
+    if (hasActiveSubscription) {
+        banner.style.display = 'block';
         banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
         document.getElementById('trialStatusText').textContent = '✅ You are subscribed!';
@@ -263,7 +348,8 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'none';
         return;
     }
-    if (isExpired || daysLeft <= 0) {
+    
+    if (isTrialExpired || daysLeft <= 0) {
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
         document.getElementById('trialStatusText').textContent = '⛔ Your trial has expired!';
@@ -274,16 +360,21 @@ async function checkTrialStatus() {
         upgradeBtn.textContent = 'Subscribe Now';
         upgradeBtn.style.display = 'block';
         upgradeBtn.style.background = '#ef4444';
+        upgradeBtn.onclick = function() { startPayment('3_months'); };
         showToast('⛔ Your trial has expired! Please subscribe to continue.', 'error');
         disableTrialFeatures();
         return;
     }
+    
+    // Active trial
+    banner.style.display = 'block';
     document.getElementById('trialStatusText').textContent = 'Your free trial ends in:';
     daysElement.textContent = daysLeft;
     document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
     const progress = (daysLeft / 14) * 100;
     progressBar.style.width = progress + '%';
     progressBar.style.background = '#22c55e';
+    
     if (daysLeft <= 6 && daysLeft > 3 && !alertShown6Days) {
         alertShown6Days = true;
         banner.style.background = '#fef3c7';
@@ -293,6 +384,7 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'block';
         upgradeBtn.textContent = 'Upgrade Now';
         upgradeBtn.style.background = '#f59e0b';
+        upgradeBtn.onclick = function() { startPayment('3_months'); };
     } else if (daysLeft <= 3 && daysLeft > 0 && !alertShown3Days) {
         alertShown3Days = true;
         banner.style.background = '#fee2e2';
@@ -302,6 +394,7 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'block';
         upgradeBtn.textContent = 'Subscribe Now';
         upgradeBtn.style.background = '#ef4444';
+        upgradeBtn.onclick = function() { startPayment('3_months'); };
     } else if (daysLeft <= 3 && daysLeft > 0) {
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
@@ -309,6 +402,7 @@ async function checkTrialStatus() {
         upgradeBtn.style.display = 'block';
         upgradeBtn.textContent = 'Subscribe Now';
         upgradeBtn.style.background = '#ef4444';
+        upgradeBtn.onclick = function() { startPayment('3_months'); };
     } else {
         banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
@@ -345,7 +439,6 @@ function upgradeNow() {
     if (subSection) {
         subSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
-        // Fallback: show message
         showToast('Please go to the subscription section to upgrade.', 'warning');
     }
 }
@@ -449,7 +542,7 @@ if (authForm) {
 }
 
 // =====================================================================
-// DASHBOARD LOGIC
+// DASHBOARD LOGIC (UPDATED)
 // =====================================================================
 var menuForm = document.getElementById('menuForm');
 if (menuForm) {
@@ -487,13 +580,15 @@ if (menuForm) {
                 document.getElementById('viewMenuLink').href = 'menu.html?id=' + data.id;
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
-                if (data.is_trial_expired && !data.is_subscribed) {
-                    disableTrialFeatures();
-                }
+                
+                // Check subscription status
+                await checkSubscriptionStatus();
+                
                 await loadMenuItems();
                 if (trialCheckInterval) clearInterval(trialCheckInterval);
                 await checkTrialStatus();
                 trialCheckInterval = setInterval(checkTrialStatus, 60000);
+                
             } else if (data.error === 'Unauthorized') {
                 localStorage.removeItem('scaneats_token');
                 window.location.href = 'auth.html';
@@ -521,6 +616,10 @@ if (menuForm) {
             return;
         }
         var data = await apiFetch('/api/menu-items');
+        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+            list.innerHTML = '<p class="loading-text" style="color:red;">Subscription expired. Please renew to access your menu.</p>';
+            return;
+        }
         if (!data.error && Array.isArray(data)) {
             allItems = data;
             renderMenu();
@@ -572,6 +671,10 @@ if (menuForm) {
             return;
         }
         var data = await apiFetch('/api/menu/toggle/' + id, 'PUT');
+        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+            showToast('Subscription expired. Please renew to continue.', 'error');
+            return;
+        }
         if (data.success) {
             showToast('Item status updated!');
             var item = allItems.find(function(i) { return i.id === id; });
@@ -600,6 +703,10 @@ if (menuForm) {
         var method = id ? 'PUT' : 'POST';
         var endpoint = id ? '/api/menu-items/' + id : '/api/menu-items';
         var data = await apiFetch(endpoint, method, payload);
+        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+            showToast('Subscription expired. Please renew to continue.', 'error');
+            return;
+        }
         if (data.success) {
             showToast(id ? 'Item updated!' : 'Item added!');
             resetForm();
@@ -632,6 +739,10 @@ if (menuForm) {
             return;
         }
         var data = await apiFetch('/api/menu-items/' + id, 'DELETE');
+        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+            showToast('Subscription expired. Please renew to continue.', 'error');
+            return;
+        }
         if (data.success) {
             showToast('Item deleted!');
             await loadMenuItems();
@@ -649,9 +760,6 @@ if (menuForm) {
     }
     document.getElementById('cancelBtn').addEventListener('click', resetForm);
 
-    // =====================================================================
-    // QR CODE GENERATION (HIGH RESOLUTION)
-    // =====================================================================
     document.getElementById('generateQrBtn').addEventListener('click', async function() {
         if (!getToken()) {
             showToast('Please login again', 'error');
@@ -662,6 +770,10 @@ if (menuForm) {
         showToast('🔲 Generating high-resolution QR...', 'warning');
         
         var data = await apiFetch('/api/generate-qr', 'POST');
+        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+            showToast('Subscription expired. Please renew to continue.', 'error');
+            return;
+        }
         if (data.success) {
             document.getElementById('qrDisplay').innerHTML = 
                 '<img src="' + data.qr_base64 + '" alt="QR Code" style="width:100%; height:100%; object-fit:contain;">';
@@ -685,7 +797,7 @@ if (menuForm) {
 }
 
 // =====================================================================
-// PUBLIC MENU LOGIC
+// PUBLIC MENU LOGIC (WITH SUBSCRIPTION EXPIRY HANDLING)
 // =====================================================================
 var menuContent = document.getElementById('menuContent');
 if (menuContent) {
@@ -701,25 +813,61 @@ if (menuContent) {
             document.getElementById('loading').style.display = 'none';
             return;
         }
-        var data = await apiFetch('/api/menu/' + restaurantId);
-        if (data.error) {
-            menuContent.innerHTML = '<h2>' + (data.error || 'Menu not found') + '</h2>';
+        
+        try {
+            var data = await apiFetch('/api/menu/' + restaurantId);
+            
+            // ⭐ Check for subscription expired error
+            if (data.error === 'SUBSCRIPTION_EXPIRED') {
+                // Hide entire menu
+                var menuControls = document.querySelector('.menu-controls');
+                var menuHeader = document.querySelector('.menu-header');
+                if (menuControls) menuControls.style.display = 'none';
+                if (menuHeader) menuHeader.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
+                
+                // Show professional fallback
+                menuContent.innerHTML = `
+                    <div class="subscription-expired-fallback">
+                        <div class="fallback-icon">🔒</div>
+                        <h2>Menu Currently Unavailable</h2>
+                        <p>This restaurant's digital menu is currently inactive.</p>
+                        <p class="fallback-subtext">Please request a physical menu from the restaurant staff.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (data.error) {
+                menuContent.innerHTML = '<h2>' + (data.error || 'Menu not found') + '</h2>';
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('restaurantName').textContent = data.restaurant_name;
+            document.title = data.restaurant_name + ' - Menu';
+            allMenuItems = data.items || [];
+            
+            // Show controls (they might have been hidden)
+            var menuControls = document.querySelector('.menu-controls');
+            if (menuControls) menuControls.style.display = 'flex';
+            
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchTerm = e.target.value.toLowerCase();
+                renderFilteredMenu();
+            });
+            document.getElementById('vegOnlyToggle').addEventListener('change', function(e) {
+                isVegOnly = e.target.checked;
+                renderFilteredMenu();
+            });
+            renderFilteredMenu();
             document.getElementById('loading').style.display = 'none';
-            return;
+            
+        } catch (error) {
+            console.error('Load menu error:', error);
+            menuContent.innerHTML = '<h2>Something went wrong. Please try again.</h2>';
+            document.getElementById('loading').style.display = 'none';
         }
-        document.getElementById('restaurantName').textContent = data.restaurant_name;
-        document.title = data.restaurant_name + ' - Menu';
-        allMenuItems = data.items || [];
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            searchTerm = e.target.value.toLowerCase();
-            renderFilteredMenu();
-        });
-        document.getElementById('vegOnlyToggle').addEventListener('change', function(e) {
-            isVegOnly = e.target.checked;
-            renderFilteredMenu();
-        });
-        renderFilteredMenu();
-        document.getElementById('loading').style.display = 'none';
     }
 
     function renderFilteredMenu() {
