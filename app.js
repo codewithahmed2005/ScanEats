@@ -49,6 +49,51 @@ function showToast(msg, type = 'success') {
 }
 
 // =====================================================================
+// GOOGLE OAUTH HANDLER (FIXED - Runs immediately on auth.html)
+// =====================================================================
+
+(function handleGoogleOAuth() {
+    // Only run on auth.html
+    if (!window.location.pathname.includes('auth.html')) return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const googleAuth = urlParams.get('google_auth');
+    const error = urlParams.get('error');
+    
+    console.log('🔍 Google OAuth Params:', { token: !!token, googleAuth, error });
+    
+    if (error) {
+        console.log('❌ Google Auth Error:', error);
+        setTimeout(function() {
+            const errorDiv = document.getElementById('errorMsg');
+            if (errorDiv) {
+                errorDiv.textContent = 'Google login failed. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }, 500);
+        // Remove error from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
+    
+    if (token && googleAuth === 'success') {
+        console.log('✅ Google Auth Success! Token received');
+        
+        // Save token
+        localStorage.setItem('scaneats_token', token);
+        
+        // Show success toast
+        showToast('✅ Google login successful!', 'success');
+        
+        // Redirect to dashboard after 1 second
+        setTimeout(function() {
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    }
+})();
+
+// =====================================================================
 // RAZORPAY PAYMENT FUNCTIONS
 // =====================================================================
 
@@ -150,7 +195,7 @@ async function verifyPayment(response) {
 }
 
 // =====================================================================
-// SUBSCRIPTION EXPIRY BANNER (NEW)
+// SUBSCRIPTION EXPIRY BANNER
 // =====================================================================
 
 async function checkSubscriptionStatus() {
@@ -216,7 +261,6 @@ async function checkSubscriptionStatus() {
 }
 
 function disableDashboardActions() {
-    // Disable Add/Edit/Delete buttons
     document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn, .btn-submit').forEach(function(el) {
         el.disabled = true;
         el.style.opacity = '0.5';
@@ -229,37 +273,6 @@ function disableDashboardActions() {
     document.querySelectorAll('.switch input').forEach(function(el) {
         el.disabled = true;
     });
-}
-
-// =====================================================================
-// GOOGLE OAUTH HANDLER
-// =====================================================================
-
-if (window.location.pathname.includes('auth.html')) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const googleAuth = urlParams.get('google_auth');
-    const error = urlParams.get('error');
-    
-    if (error) {
-        console.log('Google Auth Error:', error);
-        setTimeout(function() {
-            const errorDiv = document.getElementById('errorMsg');
-            if (errorDiv) {
-                errorDiv.textContent = 'Google login failed. Please try again.';
-                errorDiv.style.display = 'block';
-            }
-        }, 500);
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    
-    if (token && googleAuth === 'success') {
-        localStorage.setItem('scaneats_token', token);
-        showToast('✅ Google login successful!', 'success');
-        setTimeout(function() {
-            window.location.href = 'dashboard.html';
-        }, 1000);
-    }
 }
 
 // =====================================================================
@@ -307,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// TRIAL CHECK (UPDATED)
+// TRIAL CHECK
 // =====================================================================
 let trialCheckInterval = null;
 let alertShown6Days = false;
@@ -326,7 +339,6 @@ async function checkTrialStatus() {
     const isSubscribed = data.is_subscribed;
     const isTrialExpired = data.is_trial_expired;
     const hasActiveSubscription = data.has_active_subscription;
-    const hasActiveAccess = data.has_active_access;
     
     const banner = document.getElementById('trialBanner');
     const daysElement = document.getElementById('trialDays');
@@ -335,7 +347,6 @@ async function checkTrialStatus() {
     
     if (!banner) return;
     
-    // If subscription is active OR trial is active
     if (hasActiveSubscription) {
         banner.style.display = 'block';
         banner.style.background = '#dbeafe';
@@ -434,7 +445,6 @@ function disableTrialFeatures() {
 }
 
 function upgradeNow() {
-    // Scroll to subscription section
     const subSection = document.getElementById('subscriptionSection');
     if (subSection) {
         subSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -542,7 +552,7 @@ if (authForm) {
 }
 
 // =====================================================================
-// DASHBOARD LOGIC (UPDATED)
+// DASHBOARD LOGIC
 // =====================================================================
 var menuForm = document.getElementById('menuForm');
 if (menuForm) {
@@ -581,7 +591,6 @@ if (menuForm) {
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
                 
-                // Check subscription status
                 await checkSubscriptionStatus();
                 
                 await loadMenuItems();
@@ -819,14 +828,12 @@ if (menuContent) {
             
             // ⭐ Check for subscription expired error
             if (data.error === 'SUBSCRIPTION_EXPIRED') {
-                // Hide entire menu
                 var menuControls = document.querySelector('.menu-controls');
                 var menuHeader = document.querySelector('.menu-header');
                 if (menuControls) menuControls.style.display = 'none';
                 if (menuHeader) menuHeader.style.display = 'none';
                 document.getElementById('loading').style.display = 'none';
                 
-                // Show professional fallback
                 menuContent.innerHTML = `
                     <div class="subscription-expired-fallback">
                         <div class="fallback-icon">🔒</div>
@@ -848,7 +855,6 @@ if (menuContent) {
             document.title = data.restaurant_name + ' - Menu';
             allMenuItems = data.items || [];
             
-            // Show controls (they might have been hidden)
             var menuControls = document.querySelector('.menu-controls');
             if (menuControls) menuControls.style.display = 'flex';
             
