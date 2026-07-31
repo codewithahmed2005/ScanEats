@@ -49,7 +49,111 @@ function showToast(msg, type = 'success') {
 }
 
 // =====================================================================
-// GOOGLE OAUTH HANDLER (NEW)
+// RAZORPAY PAYMENT FUNCTIONS (NEW)
+// =====================================================================
+
+async function loadRazorpayScript() {
+    return new Promise((resolve, reject) => {
+        if (typeof Razorpay !== 'undefined') {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+async function startPayment(plan = '3_months') {
+    const token = getToken();
+    if (!token) {
+        showToast('Please login again', 'error');
+        window.location.href = 'auth.html';
+        return;
+    }
+    
+    try {
+        showToast('Creating order...', 'warning');
+        
+        // 1. Create order from backend
+        const orderData = await apiFetch('/api/create-order', 'POST', { plan: plan });
+        
+        if (orderData.error) {
+            showToast(orderData.error, 'error');
+            return;
+        }
+        
+        if (orderData.already_subscribed) {
+            showToast('You already have an active subscription!', 'warning');
+            return;
+        }
+        
+        // 2. Load Razorpay SDK dynamically
+        await loadRazorpayScript();
+        
+        // 3. Open Razorpay Checkout
+        const options = {
+            key: orderData.key_id,
+            amount: orderData.amount,
+            currency: orderData.currency,
+            name: 'ScanEats',
+            description: orderData.plan_name,
+            image: 'https://codewithahmed2005.github.io/ScanEats/logo.png',
+            order_id: orderData.order_id,
+            handler: function(response) {
+                verifyPayment(response);
+            },
+            prefill: {
+                name: document.getElementById('restoName')?.textContent || '',
+                email: localStorage.getItem('user_email') || ''
+            },
+            theme: {
+                color: '#1e1e2a'
+            },
+            modal: {
+                ondismiss: function() {
+                    showToast('Payment cancelled', 'warning');
+                }
+            }
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+    } catch (error) {
+        console.error('Payment Error:', error);
+        showToast('Something went wrong. Please try again.', 'error');
+    }
+}
+
+async function verifyPayment(response) {
+    try {
+        showToast('Verifying payment...', 'warning');
+        
+        const verifyData = await apiFetch('/api/verify-payment', 'POST', {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+        });
+        
+        if (verifyData.success) {
+            showToast('🎉 Payment successful! Subscription activated.', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('Payment verification failed. Please contact support.', 'error');
+        }
+    } catch (error) {
+        console.error('Verification Error:', error);
+        showToast('Verification failed. Please contact support.', 'error');
+    }
+}
+
+// =====================================================================
+// GOOGLE OAUTH HANDLER
 // =====================================================================
 
 // Check for Google OAuth callback on auth page
@@ -61,7 +165,6 @@ if (window.location.pathname.includes('auth.html')) {
     
     if (error) {
         console.log('Google Auth Error:', error);
-        // Show error after page loads
         setTimeout(function() {
             const errorDiv = document.getElementById('errorMsg');
             if (errorDiv) {
@@ -69,12 +172,10 @@ if (window.location.pathname.includes('auth.html')) {
                 errorDiv.style.display = 'block';
             }
         }, 500);
-        // Remove error from URL
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
     if (token && googleAuth === 'success') {
-        // Save token and redirect to dashboard
         localStorage.setItem('scaneats_token', token);
         showToast('✅ Google login successful!', 'success');
         setTimeout(function() {
@@ -84,7 +185,7 @@ if (window.location.pathname.includes('auth.html')) {
 }
 
 // =====================================================================
-// MOBILE MENU TOGGLE (FIXED - Works on all pages)
+// MOBILE MENU TOGGLE
 // =====================================================================
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
@@ -239,8 +340,13 @@ function disableTrialFeatures() {
 }
 
 function upgradeNow() {
-    if (confirm('Your free trial has ended. Would you like to subscribe now?')) {
-        alert('🚀 Subscription page coming soon! For now, contact support.');
+    // Scroll to subscription section
+    const subSection = document.getElementById('subscriptionSection');
+    if (subSection) {
+        subSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        // Fallback: show message
+        showToast('Please go to the subscription section to upgrade.', 'warning');
     }
 }
 
@@ -271,7 +377,7 @@ function printQR() {
 }
 
 // =====================================================================
-// AUTH LOGIC (UPDATED)
+// AUTH LOGIC
 // =====================================================================
 var authForm = document.getElementById('authForm');
 if (authForm) {
@@ -557,17 +663,14 @@ if (menuForm) {
         
         var data = await apiFetch('/api/generate-qr', 'POST');
         if (data.success) {
-            // Display QR
             document.getElementById('qrDisplay').innerHTML = 
                 '<img src="' + data.qr_base64 + '" alt="QR Code" style="width:100%; height:100%; object-fit:contain;">';
             
-            // Download PNG
             var link = document.getElementById('downloadQrLink');
             link.href = data.qr_base64;
             link.download = 'scaneats_menu_' + currentRestaurant.id + '.png';
             link.style.display = 'inline-block';
             
-            // Print button
             document.getElementById('printQrBtn').style.display = 'inline-block';
             
             showToast('✅ High-res QR generated! (1000x1000px, 300 DPI)', 'success');
