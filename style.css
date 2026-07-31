@@ -126,6 +126,100 @@ body {
 }
 
 /* =====================================================
+   SUBSCRIPTION BANNER (NEW)
+===================================================== */
+.subscription-banner {
+    padding: 12px 20px;
+    border-bottom: 3px solid;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: none;
+}
+
+.banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.banner-icon {
+    font-size: 1.5rem;
+}
+
+.banner-text {
+    flex: 1;
+    font-size: 0.95rem;
+    color: #1e1e2a;
+    font-weight: 500;
+}
+
+.banner-text strong {
+    font-weight: 700;
+}
+
+.banner-btn {
+    padding: 8px 24px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .banner-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        text-align: center;
+    }
+    .banner-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* =====================================================
+   SUBSCRIPTION EXPIRED FALLBACK (Public Menu)
+===================================================== */
+.subscription-expired-fallback {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #ede8e2;
+    max-width: 500px;
+    margin: 2rem auto;
+}
+
+.subscription-expired-fallback .fallback-icon {
+    font-size: 4rem;
+    color: #ef4444;
+    margin-bottom: 1rem;
+}
+
+.subscription-expired-fallback h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1e1e2a;
+    margin-bottom: 0.5rem;
+}
+
+.subscription-expired-fallback p {
+    color: #5a5a6a;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
+
+.subscription-expired-fallback .fallback-subtext {
+    font-size: 0.9rem;
+    color: #8b8b9a;
+    margin-top: 0.5rem;
+}
+
+/* =====================================================
    NAVBAR
 ===================================================== */
 .navbar {
