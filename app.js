@@ -49,11 +49,10 @@ function showToast(msg, type = 'success') {
 }
 
 // =====================================================================
-// GOOGLE OAUTH HANDLER (FIXED - Runs immediately on auth.html)
+// GOOGLE OAUTH HANDLER
 // =====================================================================
 
 (function handleGoogleOAuth() {
-    // Only run on auth.html
     if (!window.location.pathname.includes('auth.html')) return;
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -72,21 +71,14 @@ function showToast(msg, type = 'success') {
                 errorDiv.style.display = 'block';
             }
         }, 500);
-        // Remove error from URL
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
     }
     
     if (token && googleAuth === 'success') {
         console.log('✅ Google Auth Success! Token received');
-        
-        // Save token
         localStorage.setItem('scaneats_token', token);
-        
-        // Show success toast
         showToast('✅ Google login successful!', 'success');
-        
-        // Redirect to dashboard after 1 second
         setTimeout(function() {
             window.location.href = 'dashboard.html';
         }, 1000);
@@ -94,7 +86,7 @@ function showToast(msg, type = 'success') {
 })();
 
 // =====================================================================
-// RAZORPAY PAYMENT FUNCTIONS
+// ⭐ RAZORPAY PAYMENT FUNCTIONS (SECURE)
 // =====================================================================
 
 async function loadRazorpayScript() {
@@ -154,9 +146,15 @@ async function startPayment(plan = '3_months') {
             theme: {
                 color: '#1e1e2a'
             },
+            // ⭐ SECURITY: Cancel handler
             modal: {
                 ondismiss: function() {
-                    showToast('Payment cancelled', 'warning');
+                    showToast('Payment cancelled. No charges were made.', 'warning');
+                    
+                    // ⭐ NEW: Cancel payment in backend
+                    apiFetch('/api/cancel-payment', 'POST', {
+                        order_id: orderData.order_id
+                    });
                 }
             }
         };
@@ -186,7 +184,7 @@ async function verifyPayment(response) {
                 window.location.reload();
             }, 1500);
         } else {
-            showToast('Payment verification failed. Please contact support.', 'error');
+            showToast(verifyData.error || 'Payment verification failed. Please contact support.', 'error');
         }
     } catch (error) {
         console.error('Verification Error:', error);
@@ -217,7 +215,6 @@ async function checkSubscriptionStatus() {
     if (!banner) return;
     
     if (!hasAccess) {
-        // ⭐ EXPIRED — Show lockout banner
         banner.style.display = 'block';
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
@@ -234,12 +231,8 @@ async function checkSubscriptionStatus() {
                 </button>
             </div>
         `;
-        
-        // Disable dashboard actions
         disableDashboardActions();
-        
     } else if (isSubscribed && daysLeft <= 7) {
-        // ⚠️ Subscription ending soon
         banner.style.display = 'block';
         banner.style.background = '#fef3c7';
         banner.style.borderColor = '#f59e0b';
@@ -454,7 +447,7 @@ function upgradeNow() {
 }
 
 // =====================================================================
-// QR CODE FUNCTIONS (HIGH RESOLUTION + PRINT)
+// QR CODE FUNCTIONS
 // =====================================================================
 
 function printQR() {
@@ -592,7 +585,6 @@ if (menuForm) {
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
                 
                 await checkSubscriptionStatus();
-                
                 await loadMenuItems();
                 if (trialCheckInterval) clearInterval(trialCheckInterval);
                 await checkTrialStatus();
@@ -806,7 +798,7 @@ if (menuForm) {
 }
 
 // =====================================================================
-// PUBLIC MENU LOGIC (WITH SUBSCRIPTION EXPIRY HANDLING)
+// PUBLIC MENU LOGIC
 // =====================================================================
 var menuContent = document.getElementById('menuContent');
 if (menuContent) {
@@ -826,7 +818,6 @@ if (menuContent) {
         try {
             var data = await apiFetch('/api/menu/' + restaurantId);
             
-            // ⭐ Check for subscription expired error
             if (data.error === 'SUBSCRIPTION_EXPIRED') {
                 var menuControls = document.querySelector('.menu-controls');
                 var menuHeader = document.querySelector('.menu-header');
