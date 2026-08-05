@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// TRIAL CHECK
+// TRIAL CHECK (UPDATED WITH TIMER FIX)
 // =====================================================================
 let trialCheckInterval = null;
 let alertShown6Days = false;
@@ -326,10 +326,13 @@ async function checkTrialStatus() {
         return;
     }
     
-    const daysLeft = data.trial_days_left || 0;
+    // 🔥 FIX: Ensure number is parsed properly
+    const daysLeft = parseInt(data.trial_days_left) || 0; 
     const isSubscribed = data.is_subscribed;
     const isTrialExpired = data.is_trial_expired;
     const hasActiveSubscription = data.has_active_subscription;
+    
+    console.log(`🔍 Timer Check: Days Left = ${daysLeft}, Subscribed = ${isSubscribed}, Expired = ${isTrialExpired}`);
     
     const banner = document.getElementById('trialBanner');
     const daysElement = document.getElementById('trialDays');
@@ -373,6 +376,8 @@ async function checkTrialStatus() {
     document.getElementById('trialStatusText').textContent = 'Your free trial ends in:';
     daysElement.textContent = daysLeft;
     document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
+    
+    // 🔥 FIX: 14 din max maan kar percentage calculate kar rahe hain
     const progress = (daysLeft / 14) * 100;
     progressBar.style.width = progress + '%';
     progressBar.style.background = '#22c55e';
@@ -545,11 +550,47 @@ if (authForm) {
 // =====================================================================
 // DASHBOARD LOGIC
 // =====================================================================
+var currentRestaurant = null;
+var allItems = [];
+var isInitialized = false;
+
+// 🔥 FIX: Function ko global scope mein bahar nikal diya taaki DOMContentLoaded use kar sake
+async function initDashboard() {
+    if (isInitialized) return;
+    if (!getToken()) {
+        window.location.href = `${FRONTEND_URL}/auth.html`;
+        return;
+    }
+    try {
+        var data = await apiFetch('/api/me', 'GET');
+        if (data && data.id) {
+            isInitialized = true;
+            currentRestaurant = data;
+            document.getElementById('restoName').textContent = data.restaurant_name;
+            document.getElementById('viewMenuLink').href = `${FRONTEND_URL}/menu.html?id=${data.id}`;
+            document.getElementById('settings_resto_name').value = data.restaurant_name || '';
+            document.getElementById('settings_upi_id').value = data.upi_id || '';
+            
+            await checkSubscriptionStatus();
+            await loadMenuItems();
+            if (trialCheckInterval) clearInterval(trialCheckInterval);
+            await checkTrialStatus();
+            trialCheckInterval = setInterval(checkTrialStatus, 60000);
+            
+        } else if (data.error === 'Unauthorized') {
+            localStorage.removeItem('scaneats_token');
+            window.location.href = `${FRONTEND_URL}/auth.html`;
+        } else {
+            setTimeout(initDashboard, 3000);
+        }
+    } catch (error) {
+        console.error('Dashboard init error:', error);
+        setTimeout(initDashboard, 3000);
+    }
+}
+
 var menuForm = document.getElementById('menuForm');
 if (menuForm) {
-    var currentRestaurant = null;
-    var allItems = [];
-    var isInitialized = false;
     var profileForm = document.getElementById('profileForm');
     if (profileForm) {
         profileForm.addEventListener('submit', async function(e) {
@@ -564,40 +605,6 @@ if (menuForm) {
                 document.getElementById('restoName').textContent = payload.restaurant_name;
             }
         });
-    }
-
-    async function initDashboard() {
-        if (isInitialized) return;
-        if (!getToken()) {
-            window.location.href = `${FRONTEND_URL}/auth.html`;
-            return;
-        }
-        try {
-            var data = await apiFetch('/api/me', 'GET');
-            if (data && data.id) {
-                isInitialized = true;
-                currentRestaurant = data;
-                document.getElementById('restoName').textContent = data.restaurant_name;
-                document.getElementById('viewMenuLink').href = `${FRONTEND_URL}/menu.html?id=${data.id}`;
-                document.getElementById('settings_resto_name').value = data.restaurant_name || '';
-                document.getElementById('settings_upi_id').value = data.upi_id || '';
-                
-                await checkSubscriptionStatus();
-                await loadMenuItems();
-                if (trialCheckInterval) clearInterval(trialCheckInterval);
-                await checkTrialStatus();
-                trialCheckInterval = setInterval(checkTrialStatus, 60000);
-                
-            } else if (data.error === 'Unauthorized') {
-                localStorage.removeItem('scaneats_token');
-                window.location.href = `${FRONTEND_URL}/auth.html`;
-            } else {
-                setTimeout(initDashboard, 3000);
-            }
-        } catch (error) {
-            console.error('Dashboard init error:', error);
-            setTimeout(initDashboard, 3000);
-        }
     }
 
     document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -796,12 +803,6 @@ if (menuForm) {
             showToast(data.error || 'Failed to generate QR', 'error');
         }
     });
-
-    // 🔥 FIX: Yeh ensure karega ki dashboard page load par turant init ho jaye
-    // Pehle yeh code bahar tha aur kabhi execute nahi ho pa raha tha
-    if (!isInitialized) {
-        initDashboard();
-    }
 }
 
 // =====================================================================
@@ -919,13 +920,13 @@ if (menuContent) {
 }
 
 // =====================================================================
-// 🔥 CRITICAL FIX: PAGE LOAD INIT (Ensures dashboard loads at the right time)
+// 🔥 FINAL FIX: PAGE LOAD INIT (Ab error nahi aayega)
 // =====================================================================
 document.addEventListener('DOMContentLoaded', function() {
     // Agar hum dashboard page par hain aur init abhi tak nahi hua, toh force karo
     if (document.getElementById('menuForm') && !window._dashboardInitiated) {
         window._dashboardInitiated = true;
-        // 'if (!isInitialized)' check already inside initDashboard, so safely call it
+        // Ab 'initDashboard' global scope mein available hai!
         initDashboard();
     }
 });
