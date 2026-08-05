@@ -623,7 +623,14 @@ if (menuForm) {
             allItems = data;
             renderMenu();
         } else {
-            list.innerHTML = '<p class="loading-text" style="color:red;">Failed to load items: ' + (data.error || 'Unknown error') + '</p>';
+            // 🔥 FIX: Agar data empty hai toh UI crash hone se bachayen aur message dikhayen
+            if (data && Array.isArray(data) && data.length === 0) {
+                list.innerHTML = '<p class="loading-text">No items added yet. Add your first item!</p>';
+                allItems = [];
+                updateStats();
+            } else {
+                list.innerHTML = '<p class="loading-text" style="color:red;">Failed to load items: ' + (data.error || 'Unknown error') + '</p>';
+            }
         }
     }
 
@@ -790,6 +797,8 @@ if (menuForm) {
         }
     });
 
+    // 🔥 FIX: Yeh ensure karega ki dashboard page load par turant init ho jaye
+    // Pehle yeh code bahar tha aur kabhi execute nahi ho pa raha tha
     if (!isInitialized) {
         initDashboard();
     }
@@ -908,5 +917,17 @@ if (menuContent) {
 
     loadPublicMenu();
 }
+
+// =====================================================================
+// 🔥 CRITICAL FIX: PAGE LOAD INIT (Ensures dashboard loads at the right time)
+// =====================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Agar hum dashboard page par hain aur init abhi tak nahi hua, toh force karo
+    if (document.getElementById('menuForm') && !window._dashboardInitiated) {
+        window._dashboardInitiated = true;
+        // 'if (!isInitialized)' check already inside initDashboard, so safely call it
+        initDashboard();
+    }
+});
 
 console.log('✅ ScanEats App loaded successfully!');
