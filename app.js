@@ -2,7 +2,7 @@
 // CONFIG
 // =====================================================================
 const API_URL = 'https://scaneats-backend.onrender.com';
-// ✅ FIX: Use Vercel URL (verified by Razorpay)
+// ✅ FIX: USE ONLY VERIFIED VERCEL URL
 const FRONTEND_URL = 'https://scan-eats-sandy.vercel.app';
 
 const getToken = () => localStorage.getItem('scaneats_token');
@@ -25,7 +25,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
             if (!document.getElementById('authForm')) {
-                window.location.href = '/auth.html';
+                window.location.href = `${FRONTEND_URL}/auth.html`;
             }
             return { error: 'Unauthorized' };
         }
@@ -81,13 +81,13 @@ function showToast(msg, type = 'success') {
         localStorage.setItem('scaneats_token', token);
         showToast('✅ Google login successful!', 'success');
         setTimeout(function() {
-            window.location.href = '/dashboard.html';
+            window.location.href = `${FRONTEND_URL}/dashboard.html`;
         }, 1000);
     }
 })();
 
 // =====================================================================
-// ⭐ RAZORPAY PAYMENT FUNCTIONS (SECURE)
+// RAZORPAY PAYMENT FUNCTIONS
 // =====================================================================
 
 async function loadRazorpayScript() {
@@ -108,7 +108,7 @@ async function startPayment(plan = '3_months') {
     const token = getToken();
     if (!token) {
         showToast('Please login again', 'error');
-        window.location.href = '/auth.html';
+        window.location.href = `${FRONTEND_URL}/auth.html`;
         return;
     }
     
@@ -179,7 +179,7 @@ async function verifyPayment(response) {
         if (verifyData.success) {
             showToast('🎉 Payment successful! Subscription activated.', 'success');
             setTimeout(() => {
-                window.location.reload();
+                window.location.href = `${FRONTEND_URL}/dashboard.html`;
             }, 1500);
         } else {
             showToast(verifyData.error || 'Payment verification failed. Please contact support.', 'error');
@@ -477,7 +477,7 @@ var authForm = document.getElementById('authForm');
 if (authForm) {
     var isSignup = false;
     if (getToken()) {
-        window.location.href = '/dashboard.html';
+        window.location.href = `${FRONTEND_URL}/dashboard.html`;
     }
     var toggleForm = document.getElementById('toggleForm');
     var toggleText = document.getElementById('toggleText');
@@ -534,7 +534,7 @@ if (authForm) {
         loadingOverlay.style.display = 'none';
         if (data.success) {
             localStorage.setItem('scaneats_token', data.token);
-            window.location.href = '/dashboard.html';
+            window.location.href = `${FRONTEND_URL}/dashboard.html`;
         } else {
             errorDiv.textContent = data.error || 'Something went wrong';
             errorDiv.style.display = 'block';
@@ -569,7 +569,7 @@ if (menuForm) {
     async function initDashboard() {
         if (isInitialized) return;
         if (!getToken()) {
-            window.location.href = '/auth.html';
+            window.location.href = `${FRONTEND_URL}/auth.html`;
             return;
         }
         try {
@@ -578,7 +578,7 @@ if (menuForm) {
                 isInitialized = true;
                 currentRestaurant = data;
                 document.getElementById('restoName').textContent = data.restaurant_name;
-                document.getElementById('viewMenuLink').href = `/menu.html?id=${data.id}`;
+                document.getElementById('viewMenuLink').href = `${FRONTEND_URL}/menu.html?id=${data.id}`;
                 document.getElementById('settings_resto_name').value = data.restaurant_name || '';
                 document.getElementById('settings_upi_id').value = data.upi_id || '';
                 
@@ -590,7 +590,7 @@ if (menuForm) {
                 
             } else if (data.error === 'Unauthorized') {
                 localStorage.removeItem('scaneats_token');
-                window.location.href = '/auth.html';
+                window.location.href = `${FRONTEND_URL}/auth.html`;
             } else {
                 setTimeout(initDashboard, 3000);
             }
@@ -603,7 +603,7 @@ if (menuForm) {
     document.getElementById('logoutBtn').addEventListener('click', function() {
         localStorage.removeItem('scaneats_token');
         if (trialCheckInterval) clearInterval(trialCheckInterval);
-        window.location.href = '/auth.html';
+        window.location.href = `${FRONTEND_URL}/auth.html`;
     });
 
     async function loadMenuItems() {
@@ -611,7 +611,7 @@ if (menuForm) {
         list.innerHTML = '<p class="loading-text">Loading items...</p>';
         if (!getToken()) {
             list.innerHTML = '<p class="loading-text" style="color:red;">Please login again</p>';
-            window.location.href = '/auth.html';
+            window.location.href = `${FRONTEND_URL}/auth.html`;
             return;
         }
         var data = await apiFetch('/api/menu-items');
@@ -666,7 +666,7 @@ if (menuForm) {
     window.toggleActive = async function(id) {
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = '/auth.html';
+            window.location.href = `${FRONTEND_URL}/auth.html`;
             return;
         }
         var data = await apiFetch('/api/menu/toggle/' + id, 'PUT');
@@ -688,7 +688,7 @@ if (menuForm) {
         e.preventDefault();
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = '/auth.html';
+            window.location.href = `${FRONTEND_URL}/auth.html`;
             return;
         }
         var id = document.getElementById('itemId').value;
@@ -734,7 +734,7 @@ if (menuForm) {
         if (!confirm('Delete this item?')) return;
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = '/auth.html';
+            window.location.href = `${FRONTEND_URL}/auth.html`;
             return;
         }
         var data = await apiFetch('/api/menu-items/' + id, 'DELETE');
@@ -762,7 +762,7 @@ if (menuForm) {
     document.getElementById('generateQrBtn').addEventListener('click', async function() {
         if (!getToken()) {
             showToast('Please login again', 'error');
-            window.location.href = '/auth.html';
+            window.location.href = `${FRONTEND_URL}/auth.html`;
             return;
         }
         
