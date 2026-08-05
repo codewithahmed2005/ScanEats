@@ -2,7 +2,7 @@
 // CONFIG
 // =====================================================================
 const API_URL = 'https://scaneats-backend.onrender.com';
-const FRONTEND_URL = 'https://codewithahmed2005.github.io/ScanEats';
+const FRONTEND_URL = 'https://scan-eats-sandy.vercel.app';
 
 const getToken = () => localStorage.getItem('scaneats_token');
 
