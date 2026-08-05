@@ -191,82 +191,6 @@ async function verifyPayment(response) {
 }
 
 // =====================================================================
-// SUBSCRIPTION EXPIRY BANNER
-// =====================================================================
-
-async function checkSubscriptionStatus() {
-    const token = getToken();
-    if (!token) return;
-    
-    const data = await apiFetch('/api/subscription-status');
-    if (data.error) {
-        console.error('Subscription status error:', data.error);
-        return;
-    }
-    
-    const banner = document.getElementById('subscriptionBanner');
-    const hasAccess = data.has_active_access;
-    const isSubscribed = data.is_subscribed;
-    const endDate = data.subscription_end_date;
-    const daysLeft = data.days_remaining || 0;
-    
-    if (!banner) return;
-    
-    if (!hasAccess) {
-        banner.style.display = 'block';
-        banner.style.background = '#fee2e2';
-        banner.style.borderColor = '#ef4444';
-        banner.innerHTML = `
-            <div class="banner-content">
-                <span class="banner-icon">⛔</span>
-                <span class="banner-text">
-                    Your ${isSubscribed ? 'subscription' : 'trial'} expired on 
-                    ${endDate ? new Date(endDate).toLocaleDateString() : 'recently'}. 
-                    <strong>Renew now to make your public QR menu visible to customers again.</strong>
-                </span>
-                <button onclick="startPayment('3_months')" class="btn-primary banner-btn">
-                    Renew Subscription
-                </button>
-            </div>
-        `;
-        disableDashboardActions();
-    } else if (isSubscribed && daysLeft <= 7) {
-        banner.style.display = 'block';
-        banner.style.background = '#fef3c7';
-        banner.style.borderColor = '#f59e0b';
-        banner.innerHTML = `
-            <div class="banner-content">
-                <span class="banner-icon">⚠️</span>
-                <span class="banner-text">
-                    Your subscription ends in <strong>${daysLeft} days</strong>. 
-                    Renew now to avoid interruption.
-                </span>
-                <button onclick="startPayment('3_months')" class="btn-primary banner-btn" style="background:#f59e0b;">
-                    Renew Now
-                </button>
-            </div>
-        `;
-    } else {
-        banner.style.display = 'none';
-    }
-}
-
-function disableDashboardActions() {
-    document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn, .btn-submit').forEach(function(el) {
-        el.disabled = true;
-        el.style.opacity = '0.5';
-        el.style.cursor = 'not-allowed';
-    });
-    document.querySelectorAll('form input, form select, form textarea').forEach(function(el) {
-        el.disabled = true;
-        el.style.opacity = '0.5';
-    });
-    document.querySelectorAll('.switch input').forEach(function(el) {
-        el.disabled = true;
-    });
-}
-
-// =====================================================================
 // MOBILE MENU TOGGLE
 // =====================================================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -311,7 +235,99 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// TRIAL CHECK (UPDATED WITH TIMER FIX)
+// SUBSCRIPTION STATUS LOGIC (UPDATED FOR COUNTDOWN)
+// =====================================================================
+async function checkSubscriptionStatus() {
+    const token = getToken();
+    if (!token) return;
+    
+    const data = await apiFetch('/api/subscription-status');
+    if (data.error) {
+        console.error('Subscription status error:', data.error);
+        return;
+    }
+    
+    // Use the same Trial Banner to show Subscription Timer
+    const banner = document.getElementById('trialBanner');
+    const daysElement = document.getElementById('trialDays');
+    const progressBar = document.getElementById('trialProgressBar');
+    const statusText = document.getElementById('trialStatusText');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    
+    if (!banner) return;
+    
+    // 🔥 CHECK 1: Active Subscription (Show Countdown)
+    if (data.is_subscribed && data.has_active_subscription) {
+        const daysLeft = data.days_remaining || 0;
+        let planDisplay = data.subscription_plan || 'Plan';
+        // Clean up plan name for display
+        if (planDisplay === '3_months') planDisplay = '3 Months';
+        if (planDisplay === '6_months') planDisplay = '6 Months';
+        if (planDisplay === '12_months') planDisplay = '12 Months';
+
+        banner.style.display = 'block';
+        banner.style.background = '#dbeafe'; // Light Blue
+        banner.style.borderColor = '#3b82f6';
+        progressBar.style.background = '#3b82f6';
+        upgradeBtn.style.display = 'none';
+
+        // Calculate Total Duration for Progress Bar
+        let totalDuration = 90; // default
+        if (planDisplay.includes('6')) totalDuration = 180;
+        if (planDisplay.includes('12')) totalDuration = 365;
+        
+        // Ensure progress doesn't exceed 100%
+        let progressPercent = Math.min(100, ((totalDuration - daysLeft) / totalDuration) * 100);
+        
+        statusText.textContent = `📅 Your ${planDisplay} plan expires in:`;
+        daysElement.textContent = daysLeft;
+        document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
+        progressBar.style.width = progressPercent + '%';
+        return; // Stop here, don't check trial
+    }
+    
+    // 🔥 CHECK 2: Subscription Expired
+    if (!data.has_active_access) {
+        banner.style.display = 'block';
+        banner.style.background = '#fee2e2';
+        banner.style.borderColor = '#ef4444';
+        progressBar.style.background = '#ef4444';
+        
+        statusText.textContent = '⛔ Your subscription has expired!';
+        daysElement.textContent = '0';
+        document.getElementById('trialDaysLabel').textContent = 'days';
+        progressBar.style.width = '0%';
+        
+        upgradeBtn.textContent = 'Renew Now';
+        upgradeBtn.style.display = 'block';
+        upgradeBtn.style.background = '#ef4444';
+        upgradeBtn.onclick = function() { startPayment('3_months'); };
+        
+        disableDashboardActions();
+        return;
+    }
+    
+    // 🔥 CHECK 3: No Subscription, Check Trial (Default)
+    banner.style.display = 'none'; // Hide banner if accessing via trial
+}
+
+function disableDashboardActions() {
+    document.querySelectorAll('.btn-edit, .btn-delete, #generateQrBtn, .btn-submit').forEach(function(el) {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+        el.style.cursor = 'not-allowed';
+    });
+    document.querySelectorAll('form input, form select, form textarea').forEach(function(el) {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+    });
+    document.querySelectorAll('.switch input').forEach(function(el) {
+        el.disabled = true;
+    });
+}
+
+// =====================================================================
+// TRIAL CHECK (Only runs if not subscribed)
 // =====================================================================
 let trialCheckInterval = null;
 let alertShown6Days = false;
@@ -326,42 +342,32 @@ async function checkTrialStatus() {
         return;
     }
     
-    // 🔥 FIX: Ensure number is parsed properly
+    // 🔥 If User is Subscribed, do not run Trial Logic (Subscription banner handles it)
+    if (data.is_subscribed && data.has_active_subscription) {
+        return; 
+    }
+
     const daysLeft = parseInt(data.trial_days_left) || 0; 
-    const isSubscribed = data.is_subscribed;
     const isTrialExpired = data.is_trial_expired;
-    const hasActiveSubscription = data.has_active_subscription;
-    
-    console.log(`🔍 Timer Check: Days Left = ${daysLeft}, Subscribed = ${isSubscribed}, Expired = ${isTrialExpired}`);
     
     const banner = document.getElementById('trialBanner');
     const daysElement = document.getElementById('trialDays');
     const progressBar = document.getElementById('trialProgressBar');
+    const statusText = document.getElementById('trialStatusText');
     const upgradeBtn = document.getElementById('upgradeBtn');
     
     if (!banner) return;
     
-    if (hasActiveSubscription) {
-        banner.style.display = 'block';
-        banner.style.background = '#dbeafe';
-        banner.style.borderColor = '#3b82f6';
-        document.getElementById('trialStatusText').textContent = '✅ You are subscribed!';
-        daysElement.textContent = '∞';
-        document.getElementById('trialDaysLabel').textContent = '';
-        progressBar.style.width = '100%';
-        progressBar.style.background = '#3b82f6';
-        upgradeBtn.style.display = 'none';
-        return;
-    }
-    
     if (isTrialExpired || daysLeft <= 0) {
+        banner.style.display = 'block';
         banner.style.background = '#fee2e2';
         banner.style.borderColor = '#ef4444';
-        document.getElementById('trialStatusText').textContent = '⛔ Your trial has expired!';
+        statusText.textContent = '⛔ Your trial has expired!';
         daysElement.textContent = '0';
         document.getElementById('trialDaysLabel').textContent = 'days';
         progressBar.style.width = '0%';
         progressBar.style.background = '#ef4444';
+        
         upgradeBtn.textContent = 'Subscribe Now';
         upgradeBtn.style.display = 'block';
         upgradeBtn.style.background = '#ef4444';
@@ -373,15 +379,15 @@ async function checkTrialStatus() {
     
     // Active trial
     banner.style.display = 'block';
-    document.getElementById('trialStatusText').textContent = 'Your free trial ends in:';
+    statusText.textContent = 'Your free trial ends in:';
     daysElement.textContent = daysLeft;
     document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
     
-    // 🔥 FIX: 14 din max maan kar percentage calculate kar rahe hain
     const progress = (daysLeft / 14) * 100;
     progressBar.style.width = progress + '%';
     progressBar.style.background = '#22c55e';
     
+    // Alert Logic
     if (daysLeft <= 6 && daysLeft > 3 && !alertShown6Days) {
         alertShown6Days = true;
         banner.style.background = '#fef3c7';
@@ -548,14 +554,13 @@ if (authForm) {
 }
 
 // =====================================================================
-// DASHBOARD LOGIC (All functions moved to GLOBAL SCOPE)
+// DASHBOARD LOGIC
 // =====================================================================
 var currentRestaurant = null;
 var allItems = [];
 var isInitialized = false;
 var menuForm = document.getElementById('menuForm');
 
-// 1. INIT FUNCTION
 async function initDashboard() {
     if (isInitialized) return;
     if (!getToken()) {
@@ -590,7 +595,6 @@ async function initDashboard() {
     }
 }
 
-// 2. LOAD MENU ITEMS
 async function loadMenuItems() {
     var list = document.getElementById('menuList');
     list.innerHTML = '<p class="loading-text">Loading items...</p>';
@@ -608,7 +612,6 @@ async function loadMenuItems() {
         allItems = data;
         renderMenu();
     } else {
-        // 🔥 FIX: Agar data empty hai toh UI crash hone se bachayen aur message dikhayen
         if (data && Array.isArray(data) && data.length === 0) {
             list.innerHTML = '<p class="loading-text">No items added yet. Add your first item!</p>';
             allItems = [];
@@ -619,14 +622,12 @@ async function loadMenuItems() {
     }
 }
 
-// 3. UPDATE STATS
 function updateStats() {
     document.getElementById('totalItems').textContent = allItems.length;
     document.getElementById('vegItems').textContent = allItems.filter(function(i) { return i.is_veg; }).length;
     document.getElementById('nonVegItems').textContent = allItems.filter(function(i) { return !i.is_veg; }).length;
 }
 
-// 4. RENDER MENU
 function renderMenu() {
     var list = document.getElementById('menuList');
     if (allItems.length === 0) {
@@ -657,7 +658,6 @@ function renderMenu() {
     updateStats();
 }
 
-// 5. TOGGLE ACTIVE
 window.toggleActive = async function(id) {
     if (!getToken()) {
         showToast('Please login again', 'error');
@@ -679,7 +679,6 @@ window.toggleActive = async function(id) {
     }
 };
 
-// 6. EDIT ITEM
 window.editItem = function(id) {
     var item = allItems.find(function(i) { return i.id === id; });
     if (!item) return;
@@ -695,7 +694,6 @@ window.editItem = function(id) {
     window.scrollTo(0, 0);
 };
 
-// 7. DELETE ITEM
 window.deleteItem = async function(id) {
     if (!confirm('Delete this item?')) return;
     if (!getToken()) {
@@ -930,12 +928,12 @@ if (menuContent) {
 }
 
 // =====================================================================
-// 🔥 FINAL FINAL FIX: PAGE LOAD INIT
+// PAGE LOAD INIT
 // =====================================================================
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('menuForm') && !window._dashboardInitiated) {
         window._dashboardInitiated = true;
-        initDashboard(); // Ab yeh global hai, koi error nahi aayega!
+        initDashboard();
     }
 });
 
