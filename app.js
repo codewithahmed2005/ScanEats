@@ -548,13 +548,14 @@ if (authForm) {
 }
 
 // =====================================================================
-// DASHBOARD LOGIC
+// DASHBOARD LOGIC (All functions moved to GLOBAL SCOPE)
 // =====================================================================
 var currentRestaurant = null;
 var allItems = [];
 var isInitialized = false;
+var menuForm = document.getElementById('menuForm');
 
-// 🔥 FIX: Function ko global scope mein bahar nikal diya taaki DOMContentLoaded use kar sake
+// 1. INIT FUNCTION
 async function initDashboard() {
     if (isInitialized) return;
     if (!getToken()) {
@@ -589,7 +590,136 @@ async function initDashboard() {
     }
 }
 
-var menuForm = document.getElementById('menuForm');
+// 2. LOAD MENU ITEMS
+async function loadMenuItems() {
+    var list = document.getElementById('menuList');
+    list.innerHTML = '<p class="loading-text">Loading items...</p>';
+    if (!getToken()) {
+        list.innerHTML = '<p class="loading-text" style="color:red;">Please login again</p>';
+        window.location.href = `${FRONTEND_URL}/auth.html`;
+        return;
+    }
+    var data = await apiFetch('/api/menu-items');
+    if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+        list.innerHTML = '<p class="loading-text" style="color:red;">Subscription expired. Please renew to access your menu.</p>';
+        return;
+    }
+    if (!data.error && Array.isArray(data)) {
+        allItems = data;
+        renderMenu();
+    } else {
+        // 🔥 FIX: Agar data empty hai toh UI crash hone se bachayen aur message dikhayen
+        if (data && Array.isArray(data) && data.length === 0) {
+            list.innerHTML = '<p class="loading-text">No items added yet. Add your first item!</p>';
+            allItems = [];
+            updateStats();
+        } else {
+            list.innerHTML = '<p class="loading-text" style="color:red;">Failed to load items: ' + (data.error || 'Unknown error') + '</p>';
+        }
+    }
+}
+
+// 3. UPDATE STATS
+function updateStats() {
+    document.getElementById('totalItems').textContent = allItems.length;
+    document.getElementById('vegItems').textContent = allItems.filter(function(i) { return i.is_veg; }).length;
+    document.getElementById('nonVegItems').textContent = allItems.filter(function(i) { return !i.is_veg; }).length;
+}
+
+// 4. RENDER MENU
+function renderMenu() {
+    var list = document.getElementById('menuList');
+    if (allItems.length === 0) {
+        list.innerHTML = '<p class="loading-text">No items added yet.</p>';
+        updateStats();
+        return;
+    }
+    list.innerHTML = allItems.map(function(item) {
+        return '<div class="menu-item-row" style="' + (!item.is_active ? 'opacity: 0.5;' : '') + '">' +
+            '<div class="item-info">' +
+            '<div class="item-name">' + item.name + ' ' + (item.is_veg ? '🟢' : '🔴') + '</div>' +
+            '<div class="item-desc">' + (item.description || '') + '</div>' +
+            '<div class="item-category">' + item.category + ' ' + (!item.is_active ? '(Inactive)' : '') + '</div>' +
+            '</div>' +
+            '<div class="item-price">₹' + item.price + '</div>' +
+            '<div style="display:flex; align-items:center; gap:10px;">' +
+            '<label class="switch">' +
+            '<input type="checkbox" onchange="toggleActive(' + item.id + ')" ' + (item.is_active ? 'checked' : '') + '>' +
+            '<span class="slider"></span>' +
+            '</label>' +
+            '<div class="item-actions">' +
+            '<button class="btn-sm btn-edit" onclick="editItem(' + item.id + ')">Edit</button>' +
+            '<button class="btn-sm btn-delete" onclick="deleteItem(' + item.id + ')">Del</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+    }).join('');
+    updateStats();
+}
+
+// 5. TOGGLE ACTIVE
+window.toggleActive = async function(id) {
+    if (!getToken()) {
+        showToast('Please login again', 'error');
+        window.location.href = `${FRONTEND_URL}/auth.html`;
+        return;
+    }
+    var data = await apiFetch('/api/menu/toggle/' + id, 'PUT');
+    if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+        showToast('Subscription expired. Please renew to continue.', 'error');
+        return;
+    }
+    if (data.success) {
+        showToast('Item status updated!');
+        var item = allItems.find(function(i) { return i.id === id; });
+        if (item) item.is_active = data.is_active;
+        renderMenu();
+    } else {
+        showToast('Failed to update status', 'error');
+    }
+};
+
+// 6. EDIT ITEM
+window.editItem = function(id) {
+    var item = allItems.find(function(i) { return i.id === id; });
+    if (!item) return;
+    document.getElementById('itemId').value = item.id;
+    document.getElementById('name').value = item.name;
+    document.getElementById('description').value = item.description || '';
+    document.getElementById('price').value = item.price;
+    document.getElementById('category').value = item.category;
+    document.getElementById('is_veg').value = item.is_veg.toString();
+    document.getElementById('formTitle').textContent = '✏️ Edit Item';
+    document.getElementById('submitBtn').textContent = 'Update Item';
+    document.getElementById('cancelBtn').style.display = 'block';
+    window.scrollTo(0, 0);
+};
+
+// 7. DELETE ITEM
+window.deleteItem = async function(id) {
+    if (!confirm('Delete this item?')) return;
+    if (!getToken()) {
+        showToast('Please login again', 'error');
+        window.location.href = `${FRONTEND_URL}/auth.html`;
+        return;
+    }
+    var data = await apiFetch('/api/menu-items/' + id, 'DELETE');
+    if (data.error === 'ACCESS_DENIED' || data.error === '403') {
+        showToast('Subscription expired. Please renew to continue.', 'error');
+        return;
+    }
+    if (data.success) {
+        showToast('Item deleted!');
+        await loadMenuItems();
+    } else {
+        showToast('Failed to delete item', 'error');
+    }
+};
+
+
+// =====================================================================
+// DASHBOARD EVENT LISTENERS
+// =====================================================================
 if (menuForm) {
     var profileForm = document.getElementById('profileForm');
     if (profileForm) {
@@ -612,91 +742,6 @@ if (menuForm) {
         if (trialCheckInterval) clearInterval(trialCheckInterval);
         window.location.href = `${FRONTEND_URL}/auth.html`;
     });
-
-    async function loadMenuItems() {
-        var list = document.getElementById('menuList');
-        list.innerHTML = '<p class="loading-text">Loading items...</p>';
-        if (!getToken()) {
-            list.innerHTML = '<p class="loading-text" style="color:red;">Please login again</p>';
-            window.location.href = `${FRONTEND_URL}/auth.html`;
-            return;
-        }
-        var data = await apiFetch('/api/menu-items');
-        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
-            list.innerHTML = '<p class="loading-text" style="color:red;">Subscription expired. Please renew to access your menu.</p>';
-            return;
-        }
-        if (!data.error && Array.isArray(data)) {
-            allItems = data;
-            renderMenu();
-        } else {
-            // 🔥 FIX: Agar data empty hai toh UI crash hone se bachayen aur message dikhayen
-            if (data && Array.isArray(data) && data.length === 0) {
-                list.innerHTML = '<p class="loading-text">No items added yet. Add your first item!</p>';
-                allItems = [];
-                updateStats();
-            } else {
-                list.innerHTML = '<p class="loading-text" style="color:red;">Failed to load items: ' + (data.error || 'Unknown error') + '</p>';
-            }
-        }
-    }
-
-    function updateStats() {
-        document.getElementById('totalItems').textContent = allItems.length;
-        document.getElementById('vegItems').textContent = allItems.filter(function(i) { return i.is_veg; }).length;
-        document.getElementById('nonVegItems').textContent = allItems.filter(function(i) { return !i.is_veg; }).length;
-    }
-
-    function renderMenu() {
-        var list = document.getElementById('menuList');
-        if (allItems.length === 0) {
-            list.innerHTML = '<p class="loading-text">No items added yet.</p>';
-            updateStats();
-            return;
-        }
-        list.innerHTML = allItems.map(function(item) {
-            return '<div class="menu-item-row" style="' + (!item.is_active ? 'opacity: 0.5;' : '') + '">' +
-                '<div class="item-info">' +
-                '<div class="item-name">' + item.name + ' ' + (item.is_veg ? '🟢' : '🔴') + '</div>' +
-                '<div class="item-desc">' + (item.description || '') + '</div>' +
-                '<div class="item-category">' + item.category + ' ' + (!item.is_active ? '(Inactive)' : '') + '</div>' +
-                '</div>' +
-                '<div class="item-price">₹' + item.price + '</div>' +
-                '<div style="display:flex; align-items:center; gap:10px;">' +
-                '<label class="switch">' +
-                '<input type="checkbox" onchange="toggleActive(' + item.id + ')" ' + (item.is_active ? 'checked' : '') + '>' +
-                '<span class="slider"></span>' +
-                '</label>' +
-                '<div class="item-actions">' +
-                '<button class="btn-sm btn-edit" onclick="editItem(' + item.id + ')">Edit</button>' +
-                '<button class="btn-sm btn-delete" onclick="deleteItem(' + item.id + ')">Del</button>' +
-                '</div>' +
-                '</div>' +
-                '</div>';
-        }).join('');
-        updateStats();
-    }
-
-    window.toggleActive = async function(id) {
-        if (!getToken()) {
-            showToast('Please login again', 'error');
-            window.location.href = `${FRONTEND_URL}/auth.html`;
-            return;
-        }
-        var data = await apiFetch('/api/menu/toggle/' + id, 'PUT');
-        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
-            showToast('Subscription expired. Please renew to continue.', 'error');
-            return;
-        }
-        if (data.success) {
-            showToast('Item status updated!');
-            var item = allItems.find(function(i) { return i.id === id; });
-            if (item) item.is_active = data.is_active;
-            renderMenu();
-        } else {
-            showToast('Failed to update status', 'error');
-        }
-    };
 
     menuForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -728,41 +773,6 @@ if (menuForm) {
             showToast(data.error || 'Error saving item', 'error');
         }
     });
-
-    window.editItem = function(id) {
-        var item = allItems.find(function(i) { return i.id === id; });
-        if (!item) return;
-        document.getElementById('itemId').value = item.id;
-        document.getElementById('name').value = item.name;
-        document.getElementById('description').value = item.description || '';
-        document.getElementById('price').value = item.price;
-        document.getElementById('category').value = item.category;
-        document.getElementById('is_veg').value = item.is_veg.toString();
-        document.getElementById('formTitle').textContent = '✏️ Edit Item';
-        document.getElementById('submitBtn').textContent = 'Update Item';
-        document.getElementById('cancelBtn').style.display = 'block';
-        window.scrollTo(0, 0);
-    };
-
-    window.deleteItem = async function(id) {
-        if (!confirm('Delete this item?')) return;
-        if (!getToken()) {
-            showToast('Please login again', 'error');
-            window.location.href = `${FRONTEND_URL}/auth.html`;
-            return;
-        }
-        var data = await apiFetch('/api/menu-items/' + id, 'DELETE');
-        if (data.error === 'ACCESS_DENIED' || data.error === '403') {
-            showToast('Subscription expired. Please renew to continue.', 'error');
-            return;
-        }
-        if (data.success) {
-            showToast('Item deleted!');
-            await loadMenuItems();
-        } else {
-            showToast('Failed to delete item', 'error');
-        }
-    };
 
     function resetForm() {
         menuForm.reset();
@@ -920,14 +930,12 @@ if (menuContent) {
 }
 
 // =====================================================================
-// 🔥 FINAL FIX: PAGE LOAD INIT (Ab error nahi aayega)
+// 🔥 FINAL FINAL FIX: PAGE LOAD INIT
 // =====================================================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Agar hum dashboard page par hain aur init abhi tak nahi hua, toh force karo
     if (document.getElementById('menuForm') && !window._dashboardInitiated) {
         window._dashboardInitiated = true;
-        // Ab 'initDashboard' global scope mein available hai!
-        initDashboard();
+        initDashboard(); // Ab yeh global hai, koi error nahi aayega!
     }
 });
 
