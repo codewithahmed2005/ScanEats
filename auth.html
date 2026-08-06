@@ -3,25 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScanEats - Login / Signup</title>
+    <title>ScanEats - Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css">
     <style>
-        .divider {
+        /* Additional styles for the nice layout */
+        .auth-container {
+            min-height: 100vh;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin: 1rem 0;
+            justify-content: center;
+            background: #f7f5f2;
+            padding: 1rem;
         }
-        .divider hr {
-            flex: 1;
-            border: none;
-            border-top: 1px solid #ede8e2;
+        .auth-card {
+            background: #ffffff;
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            text-align: center;
         }
-        .divider span {
+        .auth-card .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e1e2a;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .auth-card .logo i {
+            color: #c17b3a;
+        }
+        .auth-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1e1e2a;
+        }
+        .auth-card .subtext {
             color: #5a5a6a;
-            font-size: 0.85rem;
-            white-space: nowrap;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+        .error-msg {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
         }
         .btn-google {
             display: flex;
@@ -39,6 +70,7 @@
             width: 100%;
             cursor: pointer;
             font-size: 1rem;
+            margin-top: 1rem;
         }
         .btn-google:hover {
             background: #f5f5f5;
@@ -55,6 +87,37 @@
             cursor: not-allowed;
             transform: none;
         }
+        .auth-back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #5a5a6a;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .auth-back-link i {
+            margin-right: 6px;
+        }
+        .auth-back-link:hover {
+            color: #c17b3a;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid #ede8e2;
+            border-top: 4px solid #c17b3a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="auth-body">
@@ -64,34 +127,15 @@
 
     <div class="auth-container">
         <div class="auth-card">
-            <a href="index.html" class="logo" style="text-decoration:none;">
+            <a href="index.html" class="logo">
                 <i class="fas fa-qrcode"></i> ScanEats
             </a>
-            <h2 id="formTitle">Welcome Back</h2>
-            <!-- <div id="errorMsg" class="error-msg"></div> -->
+            <h2>Welcome to ScanEats</h2>
+            <p class="subtext">Manage your digital menu easily and securely.</p>
+            
+            <div id="errorMsg" class="error-msg"></div>
 
-            <!-- ===== EMAIL/PASSWORD FORM ===== -->
-            <!-- <form id="authForm" novalidate>
-                <div id="signupFields" style="display:none;">
-                    <input type="text" id="restaurant_name" placeholder="Restaurant Name">
-                    <input type="text" id="owner_name" placeholder="Owner Name">
-                </div>
-                <input type="email" id="email" placeholder="Email Address" required>
-                <div class="password-wrapper">
-                    <input type="password" id="password" placeholder="Password" required>
-                    <span class="toggle-password" id="togglePassword">👁️</span>
-                </div>
-                <button type="submit" class="btn-primary" id="submitBtn">Login</button>
-            </form> -->
-
-            <!-- ===== DIVIDER ===== -->
-            <div class="divider">
-                <hr>
-                <span>or continue with</span>
-                <hr>
-            </div>
-
-            <!-- ===== GOOGLE LOGIN BUTTON ===== -->
+            <!-- ===== ONLY GOOGLE LOGIN BUTTON ===== -->
             <a href="https://scaneats-backend.onrender.com/api/auth/google" 
                class="btn-google" id="googleBtn">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
@@ -99,22 +143,16 @@
                 Continue with Google
             </a>
 
-            <!-- ===== TOGGLE & BACK LINKS ===== -->
-            <!-- <p class="toggle-text">
-                <span id="toggleText">Don't have an account?</span>
-                <a href="#" id="toggleForm">Sign up here</a>
-            </p>
-            <a href="index.html" class="auth-back-link"> -->
+            <!-- ===== BACK TO HOME LINK (KEEP AS REQUESTED) ===== -->
+            <a href="index.html" class="auth-back-link">
                 <i class="fas fa-arrow-left"></i> Back to Home
             </a>
         </div>
     </div>
 
-    <script src="./app.js"></script>
-    
     <script>
         // =============================================
-        // GOOGLE OAUTH HANDLER (FIXED - Runs immediately)
+        // GOOGLE OAUTH HANDLER (Runs immediately)
         // =============================================
         (function handleGoogleOAuth() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -132,7 +170,6 @@
                         errorDiv.textContent = 'Google login failed. Please try again.';
                         errorDiv.style.display = 'block';
                     }
-                    // Remove error from URL
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }, 500);
                 return;
@@ -141,10 +178,9 @@
             if (token && googleAuth === 'success') {
                 console.log('✅ Google Auth Success! Token received');
                 
-                // Save token
                 localStorage.setItem('scaneats_token', token);
                 
-                // Show success toast
+                // Show toast alert
                 function showToast(msg) {
                     const toast = document.getElementById('toast');
                     if (toast) {
@@ -168,6 +204,5 @@
             }
         })();
     </script>
-
 </body>
 </html>
