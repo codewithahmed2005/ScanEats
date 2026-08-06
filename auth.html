@@ -135,13 +135,12 @@
             
             <div id="errorMsg" class="error-msg"></div>
 
-            <!-- ===== ONLY GOOGLE LOGIN BUTTON ===== -->
-            <a href="https://scaneats-backend.onrender.com/api/auth/google" 
-               class="btn-google" id="googleBtn">
+            <!-- ===== ONLY GOOGLE LOGIN BUTTON (WITH LOADING) ===== -->
+            <button onclick="handleGoogleLogin()" class="btn-google" id="googleBtn">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
                      alt="Google">
                 Continue with Google
-            </a>
+            </button>
 
             <!-- ===== BACK TO HOME LINK (KEEP AS REQUESTED) ===== -->
             <a href="index.html" class="auth-back-link">
@@ -151,6 +150,18 @@
     </div>
 
     <script>
+        // =============================================
+        // HANDLE GOOGLE BUTTON CLICK (WITH LOADING)
+        // =============================================
+        function handleGoogleLogin() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex'; // Show loading spinner
+            }
+            // Redirect to backend Google auth endpoint
+            window.location.href = 'https://scaneats-backend.onrender.com/api/auth/google';
+        }
+
         // =============================================
         // GOOGLE OAUTH HANDLER (Runs immediately)
         // =============================================
