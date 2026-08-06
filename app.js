@@ -2,7 +2,6 @@
 // CONFIG
 // =====================================================================
 const API_URL = 'https://scaneats-backend.onrender.com';
-// ✅ FIX: USE ONLY VERIFIED VERCEL URL
 const FRONTEND_URL = 'https://scan-eats-sandy.vercel.app';
 
 const getToken = () => localStorage.getItem('scaneats_token');
@@ -24,7 +23,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
         });
         if (res.status === 401) {
             localStorage.removeItem('scaneats_token');
-            if (!document.getElementById('authForm')) {
+            if (!window.location.pathname.includes('auth.html')) {
                 window.location.href = `${FRONTEND_URL}/auth.html`;
             }
             return { error: 'Unauthorized' };
@@ -52,7 +51,6 @@ function showToast(msg, type = 'success') {
 // =====================================================================
 // GOOGLE OAUTH HANDLER
 // =====================================================================
-
 (function handleGoogleOAuth() {
     if (!window.location.pathname.includes('auth.html')) return;
     
@@ -142,7 +140,7 @@ async function startPayment(plan = '3_months') {
             },
             prefill: {
                 name: document.getElementById('restoName')?.textContent || '',
-                email: localStorage.getItem('user_email') || ''
+                email: currentRestaurant?.email || localStorage.getItem('user_email') || ''
             },
             theme: {
                 color: '#1e1e2a'
@@ -235,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================================================================
-// SUBSCRIPTION STATUS LOGIC (UPDATED FOR COUNTDOWN)
+// SUBSCRIPTION STATUS LOGIC
 // =====================================================================
 async function checkSubscriptionStatus() {
     const token = getToken();
@@ -247,7 +245,6 @@ async function checkSubscriptionStatus() {
         return;
     }
     
-    // Use the same Trial Banner to show Subscription Timer
     const banner = document.getElementById('trialBanner');
     const daysElement = document.getElementById('trialDays');
     const progressBar = document.getElementById('trialProgressBar');
@@ -256,37 +253,32 @@ async function checkSubscriptionStatus() {
     
     if (!banner) return;
     
-    // 🔥 CHECK 1: Active Subscription (Show Countdown)
     if (data.is_subscribed && data.has_active_subscription) {
         const daysLeft = data.days_remaining || 0;
         let planDisplay = data.subscription_plan || 'Plan';
-        // Clean up plan name for display
         if (planDisplay === '3_months') planDisplay = '3 Months';
         if (planDisplay === '6_months') planDisplay = '6 Months';
         if (planDisplay === '12_months') planDisplay = '12 Months';
 
         banner.style.display = 'block';
-        banner.style.background = '#dbeafe'; // Light Blue
+        banner.style.background = '#dbeafe';
         banner.style.borderColor = '#3b82f6';
         progressBar.style.background = '#3b82f6';
         upgradeBtn.style.display = 'none';
 
-        // Calculate Total Duration for Progress Bar
-        let totalDuration = 90; // default
+        let totalDuration = 90;
         if (planDisplay.includes('6')) totalDuration = 180;
         if (planDisplay.includes('12')) totalDuration = 365;
         
-        // Ensure progress doesn't exceed 100%
         let progressPercent = Math.min(100, ((totalDuration - daysLeft) / totalDuration) * 100);
         
         statusText.textContent = `📅 Your ${planDisplay} plan expires in:`;
         daysElement.textContent = daysLeft;
         document.getElementById('trialDaysLabel').textContent = daysLeft === 1 ? 'day' : 'days';
         progressBar.style.width = progressPercent + '%';
-        return; // Stop here, don't check trial
+        return;
     }
     
-    // 🔥 CHECK 2: Subscription Expired
     if (!data.has_active_access) {
         banner.style.display = 'block';
         banner.style.background = '#fee2e2';
@@ -307,8 +299,7 @@ async function checkSubscriptionStatus() {
         return;
     }
     
-    // 🔥 CHECK 3: No Subscription, Check Trial (Default)
-    banner.style.display = 'none'; // Hide banner if accessing via trial
+    banner.style.display = 'none';
 }
 
 function disableDashboardActions() {
@@ -327,7 +318,7 @@ function disableDashboardActions() {
 }
 
 // =====================================================================
-// TRIAL CHECK (Only runs if not subscribed)
+// TRIAL CHECK
 // =====================================================================
 let trialCheckInterval = null;
 let alertShown6Days = false;
@@ -342,7 +333,6 @@ async function checkTrialStatus() {
         return;
     }
     
-    // 🔥 If User is Subscribed, do not run Trial Logic (Subscription banner handles it)
     if (data.is_subscribed && data.has_active_subscription) {
         return; 
     }
@@ -377,7 +367,6 @@ async function checkTrialStatus() {
         return;
     }
     
-    // Active trial
     banner.style.display = 'block';
     statusText.textContent = 'Your free trial ends in:';
     daysElement.textContent = daysLeft;
@@ -387,7 +376,6 @@ async function checkTrialStatus() {
     progressBar.style.width = progress + '%';
     progressBar.style.background = '#22c55e';
     
-    // Alert Logic
     if (daysLeft <= 6 && daysLeft > 3 && !alertShown6Days) {
         alertShown6Days = true;
         banner.style.background = '#fef3c7';
@@ -479,78 +467,6 @@ function printQR() {
     win.document.close();
     win.focus();
     win.print();
-}
-
-// =====================================================================
-// AUTH LOGIC
-// =====================================================================
-var authForm = document.getElementById('authForm');
-if (authForm) {
-    var isSignup = false;
-    if (getToken()) {
-        window.location.href = `${FRONTEND_URL}/dashboard.html`;
-    }
-    var toggleForm = document.getElementById('toggleForm');
-    var toggleText = document.getElementById('toggleText');
-    var formTitle = document.getElementById('formTitle');
-    var signupFields = document.getElementById('signupFields');
-    var submitBtn = authForm.querySelector('button[type="submit"]');
-    var loadingOverlay = document.getElementById('loadingOverlay');
-    var togglePassword = document.getElementById('togglePassword');
-    var passwordInput = document.getElementById('password');
-    if (togglePassword) {
-        togglePassword.addEventListener('click', function() {
-            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-        });
-    }
-    toggleForm.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        isSignup = !isSignup;
-        if (isSignup) {
-            signupFields.style.display = 'block';
-            formTitle.textContent = 'Create New Account';
-            submitBtn.textContent = 'Sign Up';
-            toggleForm.textContent = 'Login here';
-            toggleText.textContent = 'Already have an account?';
-        } else {
-            signupFields.style.display = 'none';
-            formTitle.textContent = 'Welcome Back';
-            submitBtn.textContent = 'Login';
-            toggleForm.textContent = 'Sign up here';
-            toggleText.textContent = "Don't have an account?";
-        }
-    });
-    authForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        var email = document.getElementById('email').value;
-        var password = document.getElementById('password').value;
-        var errorDiv = document.getElementById('errorMsg');
-        errorDiv.style.display = 'none';
-        var payload = { email: email, password: password };
-        var endpoint = '/api/login';
-        if (isSignup) {
-            payload.restaurant_name = document.getElementById('restaurant_name').value;
-            payload.owner_name = document.getElementById('owner_name').value;
-            endpoint = '/api/signup';
-            if (!payload.restaurant_name || !payload.owner_name) {
-                errorDiv.textContent = 'Please fill all fields';
-                errorDiv.style.display = 'block';
-                return;
-            }
-        }
-        loadingOverlay.style.display = 'flex';
-        var data = await apiFetch(endpoint, 'POST', payload);
-        loadingOverlay.style.display = 'none';
-        if (data.success) {
-            localStorage.setItem('scaneats_token', data.token);
-            window.location.href = `${FRONTEND_URL}/dashboard.html`;
-        } else {
-            errorDiv.textContent = data.error || 'Something went wrong';
-            errorDiv.style.display = 'block';
-        }
-    });
 }
 
 // =====================================================================
