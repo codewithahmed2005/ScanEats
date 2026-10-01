@@ -184,6 +184,17 @@
         </div>
     </div>
 
+    <!-- ===================================================== -->
+    <!-- FEEDBACK POPUP (NEW) -->
+    <!-- ===================================================== -->
+    <div id="feedbackPopup" class="feedback-popup" style="display:none;">
+        <div class="feedback-overlay" onclick="closeFeedbackPopup()"></div>
+        <div class="feedback-modal">
+            <button class="feedback-close" onclick="closeFeedbackPopup()" aria-label="Close">✕</button>
+            <div id="feedbackContent"></div>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
     <script src="./app.js"></script>
 </body>
