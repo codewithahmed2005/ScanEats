@@ -470,6 +470,231 @@ function printQR() {
 }
 
 // =====================================================================
+// ⭐ FEEDBACK POPUP LOGIC (NEW)
+// =====================================================================
+
+let currentFeedbackDay = null;
+
+function showFeedbackPopup(dayType) {
+    currentFeedbackDay = dayType;
+    const popup = document.getElementById('feedbackPopup');
+    const content = document.getElementById('feedbackContent');
+    
+    if (!popup || !content) return;
+    
+    if (dayType === 'day7') {
+        content.innerHTML = `
+            <div class="feedback-header">
+                <div class="feedback-icon">🎉</div>
+                <h2>Aapke 7 din ho gaye!</h2>
+                <p>Aapka feedback humare liye bahut important hai</p>
+            </div>
+            <div class="feedback-body">
+                <div class="feedback-question">
+                    <label>Aapko ScanEats kaise laga?</label>
+                    <div class="star-rating" id="rating_overall_day7">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="overall_rating_day7" value="0">
+                </div>
+                <div class="feedback-question">
+                    <label>Menu setup kitna easy laga?</label>
+                    <div class="star-rating" id="rating_setup_day7">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="setup_rating_day7" value="0">
+                </div>
+                <div class="feedback-question">
+                    <label>Sabse helpful feature?</label>
+                    <select id="helpful_feature_day7">
+                        <option value="">Select karein...</option>
+                        <option value="Menu items add karna">Menu items add karna</option>
+                        <option value="QR code generate karna">QR code generate karna</option>
+                        <option value="Real-time price update">Real-time price update</option>
+                        <option value="Customer digital menu">Customer digital menu</option>
+                        <option value="Dashboard analytics">Dashboard analytics</option>
+                        <option value="Abhi tak kuch use nahi kiya">Abhi tak kuch use nahi kiya</option>
+                    </select>
+                </div>
+                <div class="feedback-question">
+                    <label>Koi suggestion? (Optional)</label>
+                    <textarea id="suggestion_day7" placeholder="Aapka suggestion ya problem..."></textarea>
+                </div>
+            </div>
+            <div class="feedback-actions">
+                <button class="btn-later" onclick="closeFeedbackPopup()">Later</button>
+                <button class="btn-submit-feedback" onclick="submitFeedback()">Submit Feedback</button>
+            </div>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="feedback-header">
+                <div class="feedback-icon">🙏</div>
+                <h2>Aapka trial khatam!</h2>
+                <p>Ek final feedback dena chahenge?</p>
+            </div>
+            <div class="feedback-body">
+                <div class="feedback-question">
+                    <label>14 din ke trial ko overall rate karein?</label>
+                    <div class="star-rating" id="rating_overall_day14">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="overall_rating_day14" value="0">
+                </div>
+                <div class="feedback-question">
+                    <label>Business me fayda hua?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="business_benefit" value="Haan, kaafi fayda hua"> ✅ Haan, kaafi fayda hua</label>
+                        <label><input type="radio" name="business_benefit" value="Thoda fayda hua"> 🤔 Thoda fayda hua</label>
+                        <label><input type="radio" name="business_benefit" value="Koi fayda nahi hua"> ❌ Koi fayda nahi hua</label>
+                        <label><input type="radio" name="business_benefit" value="Abhi tak use nahi kiya"> ⏳ Abhi tak use nahi kiya</label>
+                    </div>
+                </div>
+                <div class="feedback-question">
+                    <label>Subscription lenge?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="subscription_intent" value="Definitely lunga"> ✅ Definitely lunga</label>
+                        <label><input type="radio" name="subscription_intent" value="Soch raha hun"> 🤔 Soch raha hun</label>
+                        <label><input type="radio" name="subscription_intent" value="Nahi lunga"> ❌ Nahi lunga</label>
+                        <label><input type="radio" name="subscription_intent" value="Thoda mehnga hai"> 💰 Thoda mehnga hai</label>
+                    </div>
+                </div>
+                <div class="feedback-question">
+                    <label>Kyun nahi? (Optional)</label>
+                    <textarea id="reason_day14" placeholder="Kuch bataiye..."></textarea>
+                </div>
+                <div class="feedback-question">
+                    <label>ScanEats ke bare me ek line? (Optional)</label>
+                    <textarea id="testimonial_day14" placeholder="Aapka testimonial..."></textarea>
+                </div>
+            </div>
+            <div class="feedback-actions">
+                <button class="btn-later" onclick="closeFeedbackPopup()">Later</button>
+                <button class="btn-submit-feedback" onclick="submitFeedback()">Submit Feedback</button>
+            </div>
+        `;
+    }
+    
+    // Attach star click handlers
+    content.querySelectorAll('.star-rating').forEach(function(ratingEl) {
+        const inputId = ratingEl.id.replace('rating_', '') + (dayType === 'day7' ? '_day7' : '_day14');
+        const hiddenInput = document.getElementById(inputId);
+        
+        ratingEl.querySelectorAll('.star').forEach(function(star) {
+            star.addEventListener('click', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                if (hiddenInput) hiddenInput.value = value;
+                
+                ratingEl.querySelectorAll('.star').forEach(function(s, idx) {
+                    if (idx < value) s.classList.add('active');
+                    else s.classList.remove('active');
+                });
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                ratingEl.querySelectorAll('.star').forEach(function(s, idx) {
+                    if (idx < value) s.style.color = '#fbbf24';
+                    else s.style.color = '';
+                });
+            });
+        });
+        
+        ratingEl.addEventListener('mouseleave', function() {
+            ratingEl.querySelectorAll('.star').forEach(function(s) {
+                s.style.color = '';
+            });
+        });
+    });
+    
+    popup.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Mark as shown in backend
+    apiFetch('/api/feedback/mark-shown', 'POST', { day_type: dayType });
+}
+
+function closeFeedbackPopup() {
+    const popup = document.getElementById('feedbackPopup');
+    if (popup) {
+        popup.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    // Agar user ne "Later" click kiya toh bhi mark as shown
+    if (currentFeedbackDay) {
+        apiFetch('/api/feedback/mark-shown', 'POST', { day_type: currentFeedbackDay });
+    }
+}
+
+async function submitFeedback() {
+    const dayType = currentFeedbackDay;
+    if (!dayType) return;
+    
+    let payload = { day_type: dayType };
+    
+    if (dayType === 'day7') {
+        payload.overall_rating = document.getElementById('overall_rating_day7').value;
+        payload.setup_rating = document.getElementById('setup_rating_day7').value;
+        payload.helpful_feature = document.getElementById('helpful_feature_day7').value;
+        payload.suggestion = document.getElementById('suggestion_day7').value;
+        
+        if (payload.overall_rating === '0') {
+            showToast('Please overall rating dein', 'warning');
+            return;
+        }
+    } else {
+        payload.overall_rating = document.getElementById('overall_rating_day14').value;
+        const benefit = document.querySelector('input[name="business_benefit"]:checked');
+        payload.business_benefit = benefit ? benefit.value : '';
+        const intent = document.querySelector('input[name="subscription_intent"]:checked');
+        payload.subscription_intent = intent ? intent.value : '';
+        payload.reason = document.getElementById('reason_day14').value;
+        payload.testimonial = document.getElementById('testimonial_day14').value;
+        
+        if (payload.overall_rating === '0') {
+            showToast('Please overall rating dein', 'warning');
+            return;
+        }
+    }
+    
+    const submitBtn = document.querySelector('.btn-submit-feedback');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+    }
+    
+    const result = await apiFetch('/api/feedback/submit', 'POST', payload);
+    
+    if (result.success) {
+        showToast('✅ Thank you for your feedback!', 'success');
+        const popup = document.getElementById('feedbackPopup');
+        if (popup) {
+            popup.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    } else {
+        showToast('Failed to submit. Please try again.', 'error');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Feedback';
+        }
+    }
+}
+
+// =====================================================================
 // DASHBOARD LOGIC
 // =====================================================================
 var currentRestaurant = null;
@@ -498,6 +723,15 @@ async function initDashboard() {
             if (trialCheckInterval) clearInterval(trialCheckInterval);
             await checkTrialStatus();
             trialCheckInterval = setInterval(checkTrialStatus, 60000);
+            
+            // ⭐ NEW: Check feedback popup (2 second delay)
+            setTimeout(function() {
+                if (data.show_feedback_day7) {
+                    showFeedbackPopup('day7');
+                } else if (data.show_feedback_day14) {
+                    showFeedbackPopup('day14');
+                }
+            }, 2000);
             
         } else if (data.error === 'Unauthorized') {
             localStorage.removeItem('scaneats_token');
